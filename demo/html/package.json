@@ -1,0 +1,10 @@
+{
+	"scripts":{
+		"start":"node ./package.js",
+		"build":"node ./package.js --env pub",
+		"build-c":"node ./package.js --env pub --clearcache true"
+	},
+	"devDependencies": {
+		"commander": "^2.15.1"
+	}
+}
