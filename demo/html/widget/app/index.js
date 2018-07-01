@@ -15,7 +15,10 @@ define([
                 Pics: '/4.jpg',
                 callback_before: () => $debug.debug('index 16: callback_before()'),
                 callback_success: () => $debug.debug('index 16: callback_success()'),
-                callback_close: () => $debug.debug('index 16: callback_close()'),
+                callback_close: () => {
+                	$debug.debug('index 16: callback_close()')
+                	$index.ShowMarkLayer();
+                }
             });
         }
     };

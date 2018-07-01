@@ -1,5 +1,5 @@
 /*
-	0.1.1
+    0.1.1
     高京
     2018-06-29
 */
@@ -66,16 +66,16 @@ const ImageMarkPen = {
 // };
 
 /*
-	https://github.com/TopuNet/LayerShow/tree/2.5.4
+    https://github.com/TopuNet/LayerShow/tree/2.5.4
 
- 	* 删除
-	 ** 不必要的盒
- 	 ** Kind=2部分
- 	 ** 所有关于IE678的判断（放到ImageMarkPen.show()时判断）。
- 	 ** 图片的横向移动方法
+    * 删除
+     ** 不必要的盒
+     ** Kind=2部分
+     ** 所有关于IE678的判断（放到ImageMarkPen.show()时判断）。
+     ** 图片的横向移动方法
 
- 	* 增加
- 	 ** dom_button_box 操作按钮层
+    * 增加
+     ** dom_button_li 操作按钮层
 */
 function LayerShow_2_5_4() {
     return {
@@ -86,9 +86,14 @@ function LayerShow_2_5_4() {
         img_obj: null,
         img_size: null,
         button_color_default: "#333",
-        button_color_hover: "#ff0000",
+        button_color_highlight: "#ff0000",
         button_color_disable: "#aaa",
         button_box_minWidth_px: 430,
+        canvas_record_now_index: -1,
+        canvas_record: [],
+        action: "",
+        action_color: "#ff0000",
+        action_lineWidth: 5,
 
         // 标记是否正在执行图片切换
         image_sliding: false,
@@ -153,7 +158,7 @@ function LayerShow_2_5_4() {
                 }).appendTo(_this.dom_image_ul);
 
             // 图片盒
-            _this.dom_image = $(document.createElement("img")).css({
+            _this.dom_image = $(document.createElement("canvas")).css({
                 "position": "absolute",
                 "top": "50%",
                 "left": "50%"
@@ -177,7 +182,7 @@ function LayerShow_2_5_4() {
             var right = 10;
             var width = 20;
             _this.dom_button_rect = $(document.createElement("div"))
-                .addClass("button_rect")
+                // .addClass("button_rect")
                 .css({
                     "cursor": "pointer",
                     "position": "absolute",
@@ -190,28 +195,28 @@ function LayerShow_2_5_4() {
                 }).appendTo(_this.dom_button_li);
 
             _this.dom_button_circle = _this.dom_button_rect.clone()
-                .attr("class", "")
-                .addClass("button_circle")
+                // .attr("class", "")
+                // .addClass("button_circle")
                 .css({
                     "left": ((left + width) * (i++) + left + 5) + "px",
                     "border-radius": "10px"
                 }).appendTo(_this.dom_button_li);
 
             _this.dom_button_pencil = _this.dom_button_rect.clone()
-                .attr("class", "")
-                .addClass("button_pencil")
+                // .attr("class", "")
+                // .addClass("button_pencil")
                 .css({
                     "left": ((left + width) * (i++) + left + 5) + "px",
                     "border": "none"
                 }).html(`
-                	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170">
-                	<path d="M182.1,47.4,155.5,20.8c-5.3-5.3-12.4-5.3-17.7,0L39.6,119,25.9,168.1c-1.3,6.6,2.3,10.2,8.8,8.8l49.1-13.7L182,65C187.4,59.7,187.4,52.7,182.1,47.4ZM39.1,163.8,49.3,127l26.6,26.6L39.1,163.8Zm45.6-19.1L58.1,118.1l57.6-57.6,26.6,26.6L84.7,144.7Zm66.4-66.4L124.5,51.7,142.2,34c4.5-4.5,4.5-4.5,8.9,0l17.7,17.7c4.5,4.5,4.5,4.5,0,8.9Z" transform="translate(-25.64 -16.82)" style="fill:${_this.button_color_default}" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170">
+                    <path d="M182.1,47.4,155.5,20.8c-5.3-5.3-12.4-5.3-17.7,0L39.6,119,25.9,168.1c-1.3,6.6,2.3,10.2,8.8,8.8l49.1-13.7L182,65C187.4,59.7,187.4,52.7,182.1,47.4ZM39.1,163.8,49.3,127l26.6,26.6L39.1,163.8Zm45.6-19.1L58.1,118.1l57.6-57.6,26.6,26.6L84.7,144.7Zm66.4-66.4L124.5,51.7,142.2,34c4.5-4.5,4.5-4.5,8.9,0l17.7,17.7c4.5,4.5,4.5,4.5,0,8.9Z" transform="translate(-25.64 -16.82)" style="fill:${_this.button_color_default}" /></svg>
                 `)
                 .appendTo(_this.dom_button_li);
 
             _this.dom_button_char = _this.dom_button_rect.clone()
-                .attr("class", "")
-                .addClass("button_char")
+                // .attr("class", "")
+                // .addClass("button_char")
                 .css({
                     "top": "6px",
                     "left": ((left + width) * (i++) + left + 3) + "px",
@@ -224,51 +229,51 @@ function LayerShow_2_5_4() {
 
             i = 0;
             _this.dom_button_radic = _this.dom_button_pencil.clone()
-                .attr("class", "")
-                .addClass("button_radic")
+                // .attr("class", "")
+                // .addClass("button_radic button_disable nohl")
                 .css({
                     "top": "8px",
                     "left": "auto",
                     "right": ((right + width) * (i++) + right + 5) + "px",
                 }).html(`
-                	<svg t="1530266623983" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1129" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width+5}" height="${width+5}">
-                	<path style="fill:${_this.button_color_default};" d="M364.037087 836.187497c-5.176906 0-10.354835-1.954515-14.334473-5.872754l-1.402953-1.381463c-0.103354-0.102331-0.205685-0.204661-0.306992-0.309038L66.585511 539.439956c-7.869225-8.087189-7.693216-21.022803 0.393973-28.892027 8.086166-7.867178 21.021779-7.692193 28.891004 0.393973l268.255627 275.66948 565.584406-571.97086c7.934716-8.023744 20.87033-8.096399 28.893051-0.162706 8.024767 7.933693 8.096399 20.87033 0.162706 28.894074L378.565988 830.122361C374.569978 834.162374 369.304044 836.187497 364.037087 836.187497z" p-id="1130"></path></svg>
+                    <svg t="1530266623983" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1129" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width+5}" height="${width+5}">
+                    <path style="fill:${_this.button_color_disable};" d="M364.037087 836.187497c-5.176906 0-10.354835-1.954515-14.334473-5.872754l-1.402953-1.381463c-0.103354-0.102331-0.205685-0.204661-0.306992-0.309038L66.585511 539.439956c-7.869225-8.087189-7.693216-21.022803 0.393973-28.892027 8.086166-7.867178 21.021779-7.692193 28.891004 0.393973l268.255627 275.66948 565.584406-571.97086c7.934716-8.023744 20.87033-8.096399 28.893051-0.162706 8.024767 7.933693 8.096399 20.87033 0.162706 28.894074L378.565988 830.122361C374.569978 834.162374 369.304044 836.187497 364.037087 836.187497z" p-id="1130"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_cancel = _this.dom_button_radic.clone()
-                .attr("class", "")
-                .addClass("button_cancel")
+                // .attr("class", "")
+                // .addClass("button_cancel nohl")
                 .css({
                     "top": "9px",
                     "right": ((right + width) * (i++) + right + 3) + "px",
                 }).html(`
-                	<svg t="1522138148259" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2386" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width+3}" height="${width+3}">
-                	<path d="M176.661601 817.172881C168.472798 825.644055 168.701706 839.149636 177.172881 847.338438 185.644056 855.527241 199.149636 855.298332 207.338438 846.827157L826.005105 206.827157C834.193907 198.355983 833.964998 184.850403 825.493824 176.661601 817.02265 168.472798 803.517069 168.701706 795.328267 177.172881L176.661601 817.172881Z" p-id="2387" style=" fill:${_this.button_color_default};"></path>
-                	<path d="M795.328267 846.827157C803.517069 855.298332 817.02265 855.527241 825.493824 847.338438 833.964998 839.149636 834.193907 825.644055 826.005105 817.172881L207.338438 177.172881C199.149636 168.701706 185.644056 168.472798 177.172881 176.661601 168.701706 184.850403 168.472798 198.355983 176.661601 206.827157L795.328267 846.827157Z" p-id="2388" style=" fill:${_this.button_color_default};"></path></svg>
+                    <svg t="1522138148259" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2386" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width+3}" height="${width+3}">
+                    <path d="M176.661601 817.172881C168.472798 825.644055 168.701706 839.149636 177.172881 847.338438 185.644056 855.527241 199.149636 855.298332 207.338438 846.827157L826.005105 206.827157C834.193907 198.355983 833.964998 184.850403 825.493824 176.661601 817.02265 168.472798 803.517069 168.701706 795.328267 177.172881L176.661601 817.172881Z" p-id="2387" style=" fill:${_this.button_color_default};"></path>
+                    <path d="M795.328267 846.827157C803.517069 855.298332 817.02265 855.527241 825.493824 847.338438 833.964998 839.149636 834.193907 825.644055 826.005105 817.172881L207.338438 177.172881C199.149636 168.701706 185.644056 168.472798 177.172881 176.661601 168.701706 184.850403 168.472798 198.355983 176.661601 206.827157L795.328267 846.827157Z" p-id="2388" style=" fill:${_this.button_color_default};"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_redo = _this.dom_button_radic.clone()
-                .attr("class", "")
-                .addClass("button_redo button_disable")
+                // .attr("class", "")
+                // .addClass("button_redo button_disable nohl")
                 .css({
-                    "cursor": "default",
+                    // "cursor": "default",
                     "top": "10px",
                     "right": ((right + width) * (i++) + right + 1) + "px",
                 }).html(`
-                	<svg t="1530265968613" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1668" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
-                	<path d="M127.5904 229.888c82.176-82.176 191.488-127.488 307.712-127.488s225.536 45.2608 307.712 127.488 127.488 191.488 127.488 307.712l0 66.2016 109.8752-109.8752c9.984-9.984 26.2144-9.984 36.1984 0s9.984 26.2144 0 36.1984l-153.6 153.6c-5.0176 5.0176-11.5712 7.4752-18.1248 7.4752s-13.1072-2.5088-18.1248-7.4752l-153.6-153.6c-9.984-9.984-9.984-26.2144 0-36.1984s26.2144-9.984 36.1984 0l109.8752 109.8752 0-66.2016c0-211.7632-172.2368-384-384-384s-384 172.2368-384 384c0 211.7632 172.2368 384 384 384 14.1312 0 25.6 11.4688 25.6 25.6s-11.4688 25.6-25.6 25.6c-116.224 0-225.536-45.2608-307.712-127.488s-127.488-191.488-127.488-307.712c0-116.224 45.2608-225.536 127.488-307.712z" p-id="1669" style=" fill:${_this.button_color_disable};"></path></svg>
+                    <svg t="1530265968613" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1668" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
+                    <path d="M127.5904 229.888c82.176-82.176 191.488-127.488 307.712-127.488s225.536 45.2608 307.712 127.488 127.488 191.488 127.488 307.712l0 66.2016 109.8752-109.8752c9.984-9.984 26.2144-9.984 36.1984 0s9.984 26.2144 0 36.1984l-153.6 153.6c-5.0176 5.0176-11.5712 7.4752-18.1248 7.4752s-13.1072-2.5088-18.1248-7.4752l-153.6-153.6c-9.984-9.984-9.984-26.2144 0-36.1984s26.2144-9.984 36.1984 0l109.8752 109.8752 0-66.2016c0-211.7632-172.2368-384-384-384s-384 172.2368-384 384c0 211.7632 172.2368 384 384 384 14.1312 0 25.6 11.4688 25.6 25.6s-11.4688 25.6-25.6 25.6c-116.224 0-225.536-45.2608-307.712-127.488s-127.488-191.488-127.488-307.712c0-116.224 45.2608-225.536 127.488-307.712z" p-id="1669" style=" fill:${_this.button_color_disable};"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_undo = _this.dom_button_redo.clone()
-                .attr("class", "")
-                .addClass("button_undo button_disable")
+                // .attr("class", "")
+                // .addClass("button_undo button_disable nohl")
                 .css({
-                    "cursor": "default",
+                    // "cursor": "default",
                     "top": "12px",
                     "right": ((right + width) * (i++) + right + 5) + "px",
                 }).html(`
-                	<svg viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1668" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
-                	<path d="M174,44.9a82.87,82.87,0,0,0-118.44,0A85.11,85.11,0,0,0,31,105v12.93L9.87,96.47a4.88,4.88,0,0,0-7,0,5.06,5.06,0,0,0,0,7.07l29.56,30a4.9,4.9,0,0,0,7,0l29.56-30a5.06,5.06,0,0,0,0-7.07,4.88,4.88,0,0,0-7,0L40.89,117.93V105c0-41.36,33.15-75,73.9-75s73.9,33.64,73.9,75-33.15,75-73.9,75a5,5,0,0,0,0,10A82.57,82.57,0,0,0,174,165.1a85.87,85.87,0,0,0,0-120.2Z" transform="translate(-1.46 -20)" style="fill:${_this.button_color_disable}"/></svg>
+                    <svg viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1668" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
+                    <path d="M174,44.9a82.87,82.87,0,0,0-118.44,0A85.11,85.11,0,0,0,31,105v12.93L9.87,96.47a4.88,4.88,0,0,0-7,0,5.06,5.06,0,0,0,0,7.07l29.56,30a4.9,4.9,0,0,0,7,0l29.56-30a5.06,5.06,0,0,0,0-7.07,4.88,4.88,0,0,0-7,0L40.89,117.93V105c0-41.36,33.15-75,73.9-75s73.9,33.64,73.9,75-33.15,75-73.9,75a5,5,0,0,0,0,10A82.57,82.57,0,0,0,174,165.1a85.87,85.87,0,0,0,0-120.2Z" transform="translate(-1.46 -20)" style="fill:${_this.button_color_disable}"/></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_split = _this.dom_button_radic.clone()
@@ -276,82 +281,254 @@ function LayerShow_2_5_4() {
                 .addClass("button_split")
                 .css({
                     "top": "10px",
+                    "cursor": "default",
                     "right": ((right + width) * (i++) + right - 7) + "px",
                 }).html(`
-                	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                	<path d="M95,0h10V200H95Z" transform="translate(-95)" style="fill:${_this.button_color_disable}"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                    <path d="M95,0h10V200H95Z" transform="translate(-95)" style="fill:${_this.button_color_disable}"/></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_larger = _this.dom_button_radic.clone()
-                .attr("class", "")
-                .addClass("button_arger")
+                // .attr("class", "")
+                // .addClass("button_arger nohl")
                 .css({
                     "top": "10px",
                     "right": ((right + width) * (i++) + right) + "px",
                 }).html(`
-                	<svg t="1530269903040" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1962" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
-                	<path style="fill:${_this.button_color_default}" d="M950.349 925.799l-166.19-166.187a416.683 416.683 0 0 1-26.635 26.635l166.188 166.189c7.355 7.353 19.279 7.353 26.637 0 7.353-7.357 7.353-19.282 0-26.637zM478.156 103.561c-208.036 0-376.682 168.646-376.682 376.684 0 208.034 168.646 376.68 376.682 376.68s376.682-168.646 376.682-376.68c0-208.038-168.646-376.684-376.682-376.684z m0 715.697c-187.232 0-339.014-151.784-339.014-339.014 0-187.233 151.782-339.014 339.014-339.014S817.17 293.011 817.17 480.244c0 187.23-151.782 339.014-339.014 339.014zM647.663 461.41H496.99V310.736c0-10.4-8.432-18.832-18.834-18.832s-18.832 8.432-18.832 18.832V461.41H308.649c-10.4 0-18.834 8.43-18.834 18.834 0 10.4 8.434 18.832 18.834 18.832h150.675v150.673c0 10.404 8.43 18.836 18.832 18.836 10.402 0 18.834-8.432 18.834-18.836V499.077h150.673c10.404 0 18.836-8.432 18.836-18.832 0-10.405-8.432-18.835-18.836-18.835z" p-id="1963"></path></svg>
+                    <svg t="1530269903040" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1962" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
+                    <path style="fill:${_this.button_color_default}" d="M950.349 925.799l-166.19-166.187a416.683 416.683 0 0 1-26.635 26.635l166.188 166.189c7.355 7.353 19.279 7.353 26.637 0 7.353-7.357 7.353-19.282 0-26.637zM478.156 103.561c-208.036 0-376.682 168.646-376.682 376.684 0 208.034 168.646 376.68 376.682 376.68s376.682-168.646 376.682-376.68c0-208.038-168.646-376.684-376.682-376.684z m0 715.697c-187.232 0-339.014-151.784-339.014-339.014 0-187.233 151.782-339.014 339.014-339.014S817.17 293.011 817.17 480.244c0 187.23-151.782 339.014-339.014 339.014zM647.663 461.41H496.99V310.736c0-10.4-8.432-18.832-18.834-18.832s-18.832 8.432-18.832 18.832V461.41H308.649c-10.4 0-18.834 8.43-18.834 18.834 0 10.4 8.434 18.832 18.834 18.832h150.675v150.673c0 10.404 8.43 18.836 18.832 18.836 10.402 0 18.834-8.432 18.834-18.836V499.077h150.673c10.404 0 18.836-8.432 18.836-18.832 0-10.405-8.432-18.835-18.836-18.835z" p-id="1963"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_smaller = _this.dom_button_larger.clone()
-                .attr("class", "")
-                .addClass("button_smaller")
+                // .attr("class", "")
+                // .addClass("button_smaller button_disable nohl")
                 .css({
+                    // "cursor": "default",
                     "right": ((right + width) * (i++) + right) + "px",
                 }).html(`
-                	<svg t="1530269903040" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1962" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
-                	<path style="fill:${_this.button_color_default}" d="M479.604 103.525c-207.839 0-376.327 168.488-376.327 376.331 0 207.839 168.488 376.327 376.327 376.327 207.841 0 376.331-168.488 376.331-376.327 0-207.842-168.49-376.331-376.331-376.331z m0 715.028c-187.056 0-338.696-151.642-338.696-338.696 0-187.058 151.64-338.696 338.696-338.696 187.058 0 338.696 151.638 338.696 338.696 0 187.054-151.638 338.696-338.696 338.696z m471.749 106.441L785.32 758.961a416.71 416.71 0 0 1-26.611 26.611L924.74 951.606c7.35 7.346 19.264 7.346 26.612 0 7.349-7.35 7.349-19.264 0.001-26.612zM648.954 461.04H310.257c-10.392 0-18.818 8.422-18.818 18.816 0 10.39 8.426 18.815 18.818 18.815h338.696c10.391 0 18.815-8.424 18.815-18.815 0-10.394-8.424-18.816-18.814-18.816z" p-id="959"></path></svg>
+                    <svg t="1530269903040" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1962" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
+                    <path style="fill:${_this.button_color_disable}" d="M479.604 103.525c-207.839 0-376.327 168.488-376.327 376.331 0 207.839 168.488 376.327 376.327 376.327 207.841 0 376.331-168.488 376.331-376.327 0-207.842-168.49-376.331-376.331-376.331z m0 715.028c-187.056 0-338.696-151.642-338.696-338.696 0-187.058 151.64-338.696 338.696-338.696 187.058 0 338.696 151.638 338.696 338.696 0 187.054-151.638 338.696-338.696 338.696z m471.749 106.441L785.32 758.961a416.71 416.71 0 0 1-26.611 26.611L924.74 951.606c7.35 7.346 19.264 7.346 26.612 0 7.349-7.35 7.349-19.264 0.001-26.612zM648.954 461.04H310.257c-10.392 0-18.818 8.422-18.818 18.816 0 10.39 8.426 18.815 18.818 18.815h338.696c10.391 0 18.815-8.424 18.815-18.815 0-10.394-8.424-18.816-18.814-18.816z" p-id="959"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_drag = _this.dom_button_larger.clone()
-                .attr("class", "")
-                .addClass("button_drag")
+                // .attr("class", "")
+                // .addClass("button_drag button_disable")
                 .css({
+                    // "cursor": "default",
                     "right": ((right + width) * (i++) + right) + "px",
                 }).html(`
-                	<svg t="1530269903040" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1962" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
-                	<path style="fill:${_this.button_color_default}" d="M876.544 530.432h-272.384c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h272.384l-112.64-112.64c-8.192-8.192-8.192-20.48 0-28.672 8.192-8.192 20.48-8.192 28.672 0l145.408 145.408c2.048 2.048 4.096 6.144 6.144 10.24 2.048 8.192 2.048 16.384-4.096 22.528l-145.408 145.408c-8.192 8.192-20.48 8.192-28.672 0-8.192-8.192-8.192-20.48 0-28.672l110.592-112.64z m-741.376 0l110.592 110.592c8.192 8.192 8.192 20.48 0 28.672-8.192 8.192-20.48 8.192-28.672 0l-145.408-145.408c-6.144-6.144-8.192-14.336-4.096-22.528 0-4.096 2.048-6.144 6.144-10.24l145.408-145.408c8.192-8.192 20.48-8.192 28.672 0 8.192 8.192 8.192 20.48 0 28.672l-112.64 112.64h272.384c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-272.384z m356.352 335.872v-272.384c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v272.384l112.64-112.64c8.192-8.192 20.48-8.192 28.672 0 8.192 8.192 8.192 20.48 0 28.672l-145.408 145.408c-2.048 2.048-6.144 4.096-10.24 6.144-8.192 2.048-16.384 2.048-22.528-4.096l-145.408-145.408c-8.192-8.192-8.192-20.48 0-28.672 8.192-8.192 20.48-8.192 28.672 0l112.64 110.592z m0-720.896l-110.592 110.592c-8.192 8.192-20.48 8.192-28.672 0-8.192-8.192-8.192-20.48 0-28.672l145.408-145.408c6.144-6.144 14.336-8.192 22.528-4.096 4.096 0 6.144 2.048 10.24 6.144l145.408 145.408c8.192 8.192 8.192 20.48 0 28.672-8.192 8.192-20.48 8.192-28.672 0l-112.64-112.64v272.384c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-272.384z" p-id="6815"></path></svg>
+                    <svg t="1530269903040" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1962" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
+                    <path style="fill:${_this.button_color_disable}" d="M876.544 530.432h-272.384c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h272.384l-112.64-112.64c-8.192-8.192-8.192-20.48 0-28.672 8.192-8.192 20.48-8.192 28.672 0l145.408 145.408c2.048 2.048 4.096 6.144 6.144 10.24 2.048 8.192 2.048 16.384-4.096 22.528l-145.408 145.408c-8.192 8.192-20.48 8.192-28.672 0-8.192-8.192-8.192-20.48 0-28.672l110.592-112.64z m-741.376 0l110.592 110.592c8.192 8.192 8.192 20.48 0 28.672-8.192 8.192-20.48 8.192-28.672 0l-145.408-145.408c-6.144-6.144-8.192-14.336-4.096-22.528 0-4.096 2.048-6.144 6.144-10.24l145.408-145.408c8.192-8.192 20.48-8.192 28.672 0 8.192 8.192 8.192 20.48 0 28.672l-112.64 112.64h272.384c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-272.384z m356.352 335.872v-272.384c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v272.384l112.64-112.64c8.192-8.192 20.48-8.192 28.672 0 8.192 8.192 8.192 20.48 0 28.672l-145.408 145.408c-2.048 2.048-6.144 4.096-10.24 6.144-8.192 2.048-16.384 2.048-22.528-4.096l-145.408-145.408c-8.192-8.192-8.192-20.48 0-28.672 8.192-8.192 20.48-8.192 28.672 0l112.64 110.592z m0-720.896l-110.592 110.592c-8.192 8.192-20.48 8.192-28.672 0-8.192-8.192-8.192-20.48 0-28.672l145.408-145.408c6.144-6.144 14.336-8.192 22.528-4.096 4.096 0 6.144 2.048 10.24 6.144l145.408 145.408c8.192 8.192 8.192 20.48 0 28.672-8.192 8.192-20.48 8.192-28.672 0l-112.64-112.64v272.384c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-272.384z" p-id="6815"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
             _this.dom_button_split_2 = _this.dom_button_split.clone()
                 .attr("class", "")
                 .addClass("button_split")
                 .css({
-                    "right": ((right + width) * (i++) + right - 10) + "px",
+                    "right": ((right + width) * (i++) + right - 13) + "px",
                 }).html(`
-                	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-                	<path d="M95,0h10V200H95Z" transform="translate(-95)" style="fill:${_this.button_color_disable}"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                    <path d="M95,0h10V200H95Z" transform="translate(-95)" style="fill:${_this.button_color_disable}"/></svg>
                 `).appendTo(_this.dom_button_li);
 
             // 图片容器盒（放置图片的盒）
             _this.dom_image_li_image = $(document.createElement("div"));
 
+            // 按钮样式初始化
+            _this.button_resetStyle.apply(_this);
+
             // 按钮监听
             _this.button_Listener.apply(_this);
+        },
+
+        // canvas记录操作历史，用于undo和redo
+        // @params: {img,x,y,width,height}
+        canvas_add: function(act, params) {
+            var _this = this;
+
+            // 将undo的操作记录删掉
+            debug.debug("ImageMarkPen 348:");
+            debug.debug(` canvas_record.length=${_this.canvas_record.length}; canvas_now_index=${_this.canvas_record_now_index}`);
+
+            if (_this.canvas_record.length > _this.canvas_record_now_index)
+                _this.canvas_record.splice(_this.canvas_record_now_index + 1, _this.canvas_record.length - _this.canvas_record_now_index - 1);
+
+            params.color = _this.action_color;
+            params.lineWidth = _this.action_lineWidth;
+
+            _this.canvas_record.push({
+                "act": act,
+                "params": params
+            });
+            debug.debug(`ImageMarkPen 350: canvas_record_now_index=${this.canvas_record_now_index}`);
+            if (++_this.canvas_record_now_index > 0) {
+                _this.dom_button_undo.removeClass("button_disable")
+                    .css("cursor", "pointer")
+                    .find("svg path").css("fill", _this.button_color_default);
+            }
+
+            _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css("cursor", "default").find("path").css("fill", _this.button_color_disable);
+
+            _this.canvas_draw(_this.ctx, act, params);
+
+            debug.log(`ImageMarkPen 356: canvas_record_now_index=${_this.canvas_record_now_index}, canvas_record=`);
+            debug.log(_this.canvas_record);
+        },
+
+        // canvas执行绘画
+        canvas_draw: function(ctx, act, params) {
+            switch (act) {
+                case "drawImage":
+                    ctx.drawImage(params.img, params.x, params.y, params.width, params.height);
+                    break;
+                case "rect":
+                    ctx.strokeRect(params.x, params.y, params.width, params.height);
+                    ctx.strokeStyle = params.color;
+                    ctx.lineWidth = params.lineWidth;
+                    break;
+                default:
+                    break;
+            }
+        },
+
+        // canvas undo
+        canvas_undo: function() {
+            var _this = this;
+
+            debug.debug(`ImageMarkPen 381: undo`);
+
+            if (--_this.canvas_record_now_index < 0) {
+                _this.canvas_record_now_index = -1;
+                return;
+            } else if (_this.canvas_record_now_index === 0) {
+                _this.dom_button_undo.addClass("button_disable")
+                    .css("cursor", "default")
+                    .find("svg path").css("fill", _this.button_color_disable);
+            }
+
+            _this.dom_button_redo.attr("class", "button_redo nohl").css("cursor", "pointer").find("path").css("fill", _this.button_color_default);
+
+            _this.ctx.clearRect(0, 0, _this.img_size.img_width, _this.img_size.img_height);
+
+            for (var i = 0; i <= _this.canvas_record_now_index; i++) {
+                _this.canvas_draw(_this.ctx, _this.canvas_record[i].act, _this.canvas_record[i].params);
+            }
+
+        },
+
+        // canvas redo
+        canvas_redo: function() {
+            var _this = this;
+
+            debug.debug(`ImageMarkPen 421: redo`);
+
+            if (_this.canvas_record_now_index >= _this.canvas_record.length - 1)
+                return;
+
+            var cr = _this.canvas_record[++_this.canvas_record_now_index];
+            _this.canvas_draw(_this.ctx, cr.act, cr.params);
+
+            if (_this.canvas_record_now_index >= _this.canvas_record.length - 1) {
+                _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css("cursor", "default").find("path").css("fill", _this.button_color_disable);
+            }
+
+            _this.dom_button_undo.attr("class", "button_undo nohl").css("cursor", "pointer").find("path").css("fill", _this.button_color_default);
+        },
+
+        // 按钮样式重置
+        button_resetStyle: function() {
+            var _this = this;
+
+            if (!_this.dom_button_li)
+                return;
+
+            _this.dom_button_rect.attr("class", "button_rect").css("border-color", _this.button_color_default);
+            _this.dom_button_circle.attr("class", "button_circle").css("border-color", _this.button_color_default);;
+            _this.dom_button_pencil.attr("class", "button_pencil").find("path").css("fill", _this.button_color_default);
+            _this.dom_button_char.attr("class", "button_char").css("color", _this.button_color_default);
+            _this.dom_button_radic.attr("class", "button_radic button_disable nohl")
+            _this.dom_button_cancel.attr("class", "button_cancel nohl");
+            _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css({ "cursor": "default" });
+            _this.dom_button_undo.attr("class", "button_undo button_disable nohl").css({ "cursor": "default" });
+            _this.dom_button_larger.attr("class", "button_larger nohl");
+            _this.dom_button_smaller.attr("class", "button_smaller button_disable nohl").css({ "cursor": "default" });
+            _this.dom_button_drag.attr("class", "button_drag button_disable").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_default);;
+
+            _this.action = "";
+
+        },
+
+        // 按钮修改高亮状态 @button: $(obj); @hl: true|else
+        button_changeHighLight: function(button, hl) {
+            var _this = this;
+            var color = hl === true ? _this.button_color_highlight : _this.button_color_default;
+            if (button.find("path").length > 0)
+                button.find("path").css("fill", color);
+            else
+                button.css({
+                    "border-color": color,
+                    "color": color
+                });
         },
 
         // 按钮监听
         button_Listener: function() {
             var _this = this;
-            var buttons = _this.dom_button_li.find("div:not(.button_split,.button_disable)");
+            var buttons = _this.dom_button_li.find("div:not(.button_split)");
             buttons.unbind().on("mouseover", function() {
-                if ($(this).find("path").length > 0)
-                    $(this).find("path").css("fill", _this.button_color_hover);
-                else
-                    $(this).css({
-                        "border-color": _this.button_color_hover,
-                        "color": _this.button_color_hover
-                    });
-
+                // debug.debug("ImageMarkPen 404: ");
+                // debug.debug($(this).hasClass("button_disable"));
+                if ($(this).hasClass("button_disable"))
+                    return;
+                _this.button_changeHighLight.apply(_this, [$(this), true]);
             }).on("mouseout", function() {
-                if ($(this).find("path").length > 0)
-                    $(this).find("path").css("fill", _this.button_color_default);
-                else
-                    $(this).css({
-                        "border-color": _this.button_color_default,
-                        "color": _this.button_color_default
-                    });
+                if ($(this).hasClass("button_now") || $(this).hasClass("button_disable"))
+                    return;
+
+                _this.button_changeHighLight.apply(_this, [$(this), false]);
+
+            }).on("click", function() {
+                if ($(this).hasClass("nohl") || $(this).hasClass("button_disable"))
+                    return;
+                var now = $(this).siblings(".button_now");
+                now.removeClass("button_now");
+                _this.button_changeHighLight.apply(_this, [now, false]);
+                $(this).addClass("button_now");
+                _this.button_changeHighLight.apply(_this, [$(this), true]);
             });
+
+            // rect
+            _this.dom_button_rect.on("click", function() {
+                _this.button_rect_handler.apply(_this);
+            });
+
+            // undo
+            _this.dom_button_undo.on("click", function() {
+                _this.canvas_undo.apply(_this);
+            });
+
+            // redo
+            _this.dom_button_redo.on("click", function() {
+                _this.canvas_redo.apply(_this);
+            });
+
+            // 取消按钮
+            _this.dom_button_cancel.on("click", function() {
+                _this.button_resetStyle.apply(_this);
+                _this.canvas_record = [];
+                _this.canvas_record_now_index = -1;
+                _this.close();
+            });
+        },
+
+        // 按钮监听-矩形
+        button_rect_handler: function() {
+            var _this = this;
+            _this.dom_image.css({
+                "cursor": "crosshair"
+            });
+
+            _this.action = "rect";
         },
 
         // 设置宽高和位置
@@ -412,21 +589,48 @@ function LayerShow_2_5_4() {
                 if (_this.img_obj) {
 
                     // 计算图片应显示尺寸
-                    var img_size = _this.imageGetSize.apply(_this, [_this.img_obj]);
+                    var img_size = _this.img_size = _this.imageGetSize.apply(_this, [_this.img_obj]);
 
-                    debug.debug(`ImageMarkPen 231: img_height=${img_size.img_height}; button_height_px=${_this.button_height_px}`)
+                    debug.debug(`ImageMarkPen 231: img_height=${img_size.img_height}; button_height_px=${_this.button_height_px}`);
 
                     // img_size.img_height -= _this.button_height_px * 1.5;
 
-                    debug.debug(`ImageMarkPen 235: img_height=${img_size.img_height}`)
+                    debug.debug(`ImageMarkPen 235: img_height=${img_size.img_height}`);
 
-                    _this.dom_image.css({
-                        "width": img_size.img_width + "px",
-                        "height": img_size.img_height + "px",
-                        "margin-top": -img_size.img_height / 2 + "px",
-                        "margin-left": -img_size.img_width / 2 + "px"
-                    });
+                    _this.dom_image.attr("width", img_size.img_width)
+                        .attr("height", img_size.img_height)
+                        .css({
+                            // "width": img_size.img_width + "px",
+                            // "height": img_size.img_height + "px",
+                            "margin-top": -img_size.img_height / 2 + "px",
+                            "margin-left": -img_size.img_width / 2 + "px"
+                        });
 
+                    debug.debug(`ImageMarkPen 470:`);
+                    debug.debug(_this.ctx);
+
+                    if (_this.ctx) {
+                        _this.canvas_add("clearRect", {
+                            "x": 0,
+                            "y": 0,
+                            "width": img_size.img_width,
+                            "height": img_size.img_height
+                        });
+                        _this.canvas_record_now_index = -1;
+                        _this.canvas_record = [];
+                    } else
+                        _this.ctx = _this.dom_image[0].getContext("2d");
+
+                    debug.debug(`ImageMarkPen 480: _this.ctx=${_this.ctx}; _this.img_obj=${_this.img_obj}`);
+                    setTimeout(function() {
+                        _this.canvas_add("drawImage", {
+                            "img": _this.img_obj,
+                            "x": 0,
+                            "y": 0,
+                            "width": img_size.img_width,
+                            "height": img_size.img_height
+                        });
+                    }, 0);
                     // 按钮盒
                     _this.dom_button_li.css({
                         "width": img_size.img_width < _this.button_box_minWidth_px ? _this.button_box_minWidth_px : img_size.img_width + "px",
@@ -449,7 +653,7 @@ function LayerShow_2_5_4() {
                     }, 0);
                 }
             };
-            $(window).unbind("resize", resize_do).bind("resize", resize_do);
+            // $(window).unbind("resize", resize_do).bind("resize", resize_do);
 
         },
 
@@ -535,9 +739,6 @@ function LayerShow_2_5_4() {
 
                     _this.img_obj = $img;
 
-                    // 装载图片
-                    _this.dom_image.attr("src", $img.src);
-
                     // 设置弹层宽高和位置
                     _this.resize.apply(_this, [$img]);
 
@@ -547,6 +748,7 @@ function LayerShow_2_5_4() {
                         _this.dom_image_box.fadeIn(200, function() {
                             if (_this.Paras.callback_success)
                                 _this.Paras.callback_success();
+                            _this.ImageDrawLisenter.apply(_this);
                         });
                     }
                 };
@@ -558,6 +760,54 @@ function LayerShow_2_5_4() {
             }
 
         },
+
+        // 图片的监听
+        ImageDrawLisenter: function() {
+            var _this = this;
+
+            var startPos = { x: -1, y: -1 };
+            var nowPos = { x: -1, y: -1 };
+            _this.dom_image.unbind("mousedown").on("mousedown", function(e) {
+                startPos = {
+                    x: e.offsetX,
+                    y: e.offsetY
+                };
+                _this.canvas_add.apply(_this, ["rect", {
+                    x: startPos.x,
+                    y: startPos.y,
+                    width: 0,
+                    height: 0
+                }]);
+                debug.debug(`ImageMarkPen 727`);
+                debug.debug(e);
+                switch (_this.action) {
+                    case "rect":
+                    case "circle":
+                        _this.dom_image.unbind("mouseover").on("mousemove", function(e) {
+                            nowPos = {
+                                x: e.offsetX,
+                                y: e.offsetY
+                            };
+                            _this.canvas_undo.apply(_this);
+                            _this.canvas_add.apply(_this, ["rect", {
+                                x: startPos.x,
+                                y: startPos.y,
+                                width: nowPos.x - startPos.x,
+                                height: nowPos.y - startPos.y
+                            }]);
+
+                        });
+                        break;
+                    default:
+                        break;
+
+                }
+            }).unbind("mouseup").on("mouseup", function() {
+                _this.dom_image.unbind("mousemove");
+                startPos = { x: -1, y: -1 };
+            });
+        },
+
         // 关闭弹层
         // reShow==true时重新显示弹层。用于IE678的resize
         close: function(reShow) {
@@ -574,38 +824,12 @@ function LayerShow_2_5_4() {
                 _this.dom_image_box.fadeOut(200, function() {
 
                     // 清空li
-                    _this.dom_image_ul.html("");
+                    // _this.dom_image_ul.html("");
 
                     if (reShow) {
                         _this.show.apply(_this, [_this.Paras]);
                     } else if (_this.Paras.callback_close)
                         _this.Paras.callback_close();
-                });
-            } else if (_this.Paras.showKind == 2) {
-
-                var info_wrapper_html = _this.dom_info_box.html();
-
-                if (_this.Paras.info_box_use_JRoll) {
-                    // 销毁jroll对象
-                    _this.jroll_obj.destroy();
-
-                    // 清空段落的style
-                    _this.dom_info_p.removeAttr("style");
-                }
-
-                // 内容盒回到顶端
-                _this.dom_info_box.scrollTop(0);
-
-                // 清空内容盒
-                _this.dom_info_p.html("");
-
-                // 隐藏弹层
-                _this.dom_close_box.fadeOut(200);
-                _this.dom_info_box.fadeOut(200, function() {
-                    if (reShow) {
-                        _this.show.apply(_this, [_this.Paras]);
-                    } else if (_this.Paras.callback_close)
-                        _this.Paras.callback_close(info_wrapper_html);
                 });
             }
         },
