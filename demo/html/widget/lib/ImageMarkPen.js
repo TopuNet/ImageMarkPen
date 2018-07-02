@@ -503,7 +503,7 @@ function LayerShow_2_5_4() {
         },
 
         // canvas记录操作历史，用于undo和redo
-        // @params: {img,x,y,width,height,radius}
+        // @params: {img,x,y,width,height,radius,x_moveTo,y_moveTo}
         canvas_add: function(act, params) {
             var _this = this;
 
@@ -539,6 +539,7 @@ function LayerShow_2_5_4() {
         // canvas执行绘画
         canvas_draw: function(ctx, act, params) {
             ctx.strokeStyle = params.color;
+            ctx.fillStyle = params.color;
             ctx.lineWidth = params.lineWidth;
             switch (act) {
                 case "drawImage":
@@ -552,6 +553,12 @@ function LayerShow_2_5_4() {
                     ctx.arc(params.x, params.y, params.radius, 0, 360);
                     ctx.stroke();
                     break;
+                case "pencil":
+                    ctx.beginPath();
+                    ctx.moveTo(params.x, params.y);
+                    ctx.lineTo(params.x_moveTo, params.y_moveTo);
+                    ctx.closePath();
+                    ctx.stroke();
                 default:
                     break;
             }
@@ -676,6 +683,8 @@ function LayerShow_2_5_4() {
                 styles = [];
             switch (hl_button_obj) {
                 case _this.dom_button_rect:
+                case _this.dom_button_circle:
+                case _this.dom_button_pencil:
                     width_px = 210;
                     styles = ["lineWidth", "color"];
                     break;
@@ -880,6 +889,11 @@ function LayerShow_2_5_4() {
                 _this.button_circle_handler.apply(_this);
             });
 
+            // pencil
+            _this.dom_button_pencil.on("click", function() {
+                _this.button_pencil_handler.apply(_this);
+            });
+
             // undo
             _this.dom_button_undo.on("click", function() {
                 _this.canvas_undo.apply(_this);
@@ -920,7 +934,19 @@ function LayerShow_2_5_4() {
 
             _this.action = "circle";
 
-            _this.styleArea_show.apply(_this, [_this.dom_button_rect]);
+            _this.styleArea_show.apply(_this, [_this.dom_button_circle]);
+        },
+
+        // 按钮监听-铅笔
+        button_pencil_handler: function() {
+            var _this = this;
+            _this.dom_image.css({
+                "cursor": "crosshair"
+            });
+
+            _this.action = "pencil";
+
+            _this.styleArea_show.apply(_this, [_this.dom_button_pencil]);
         },
 
         // 设置宽高和位置
@@ -1164,14 +1190,12 @@ function LayerShow_2_5_4() {
                     x: e.offsetX,
                     y: e.offsetY
                 };
-                _this.canvas_add.apply(_this, ["rect", {
-                    x: startPos.x,
-                    y: startPos.y,
-                    width: 0,
-                    height: 0
-                }]);
                 debug.debug(`ImageMarkPen 727`);
                 debug.debug(e);
+
+                // 没用，为了下面先undo，后add
+                _this.canvas_add.apply(_this, ["moveto", { x: 0, y: 0 }]);
+
                 switch (_this.action) {
                     case "rect":
                     case "circle":
@@ -1190,6 +1214,22 @@ function LayerShow_2_5_4() {
                             }]);
 
                         });
+                        break;
+                    case "pencil":
+                        _this.dom_image.unbind("mouseover").on("mousemove", function(e) {
+                            newPos = {
+                                x: e.offsetX,
+                                y: e.offsetY
+                            };
+                            _this.canvas_undo.apply(_this);
+                            _this.canvas_add.apply(_this, [_this.action, {
+                                x: startPos.x,
+                                y: startPos.y,
+                                x_moveTo: newPos.x,
+                                y_moveTo: newPos.y
+                            }]);
+                        });
+
                         break;
                     default:
                         break;
