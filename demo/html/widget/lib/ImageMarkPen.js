@@ -78,6 +78,8 @@ const ImageMarkPen = {
      ** dom_button_li 操作按钮层
 */
 function LayerShow_2_5_4() {
+    var action_colors = ["#fc3746", "#fd6096", "#d05ace", "#21aad4", "#17a249", "#fece5b", "#fc673b", "#999999", "#000000", "#eeeeee"]
+    action_fontSizes = [9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96];
     return {
         // 图片尺寸占window的比例
         image_size_percent_from_window_width: 0.95,
@@ -85,15 +87,20 @@ function LayerShow_2_5_4() {
         button_height_px: 40,
         img_obj: null,
         img_size: null,
+        action_colors: action_colors,
         button_color_default: "#333",
-        button_color_highlight: "#ff0000",
         button_color_disable: "#aaa",
         button_box_minWidth_px: 430,
         canvas_record_now_index: -1,
         canvas_record: [],
         action: "",
-        action_color: "#ff0000",
-        action_lineWidth: 5,
+        action_color: action_colors[0],
+        action_lineWidth_a: 3,
+        action_lineWidth_b: 6,
+        action_lineWidth_c: 9,
+        action_lineWidth: 3,
+        action_fontSizes: action_fontSizes,
+        action_fontSize: 14,
 
         // 标记是否正在执行图片切换
         image_sliding: false,
@@ -170,9 +177,9 @@ function LayerShow_2_5_4() {
                     "height": _this.button_height_px + "px",
                     "background": "#fff",
                     "border-radius": "3px",
-                    "border": "_this.button_color_default",
+                    "border": "#333",
                     "margin": "0 auto",
-                    "overflow": "hidden",
+                    // "overflow": "hidden",
                     "position": "relative"
                 }).appendTo(_this.dom_image_ul);
 
@@ -181,6 +188,21 @@ function LayerShow_2_5_4() {
             var left = 18;
             var right = 10;
             var width = 20;
+
+            // 按钮-标记当前使用(显示时append到按钮盒中)
+            _this.dom_button_now_flag = $(document.createElement("span"))
+                .css({
+                    "width": "4px",
+                    "height": "4px",
+                    "border-radius": "2px",
+                    "position": "absolute",
+                    "top": "22px",
+                    "left": "50%",
+                    "margin-left": "-2px",
+                    "background": _this.action_color
+                });
+
+            // 按钮-矩形
             _this.dom_button_rect = $(document.createElement("div"))
                 // .addClass("button_rect")
                 .css({
@@ -194,6 +216,7 @@ function LayerShow_2_5_4() {
                     "left": ((left + width) * (i++) + left + 5) + "px"
                 }).appendTo(_this.dom_button_li);
 
+            // 按钮-圆形
             _this.dom_button_circle = _this.dom_button_rect.clone()
                 // .attr("class", "")
                 // .addClass("button_circle")
@@ -202,6 +225,7 @@ function LayerShow_2_5_4() {
                     "border-radius": "10px"
                 }).appendTo(_this.dom_button_li);
 
+            // 按钮-铅笔
             _this.dom_button_pencil = _this.dom_button_rect.clone()
                 // .attr("class", "")
                 // .addClass("button_pencil")
@@ -214,20 +238,29 @@ function LayerShow_2_5_4() {
                 `)
                 .appendTo(_this.dom_button_li);
 
+            // 按钮-字符
             _this.dom_button_char = _this.dom_button_rect.clone()
                 // .attr("class", "")
                 // .addClass("button_char")
                 .css({
-                    "top": "6px",
+                    "height": "20px",
+                    "top": "10px",
                     "left": ((left + width) * (i++) + left + 3) + "px",
                     "border": "none",
                     "font-family": "Athelas",
                     "color": _this.button_color_default,
                     "font-size": "25px"
-                }).text("T")
-                .appendTo(_this.dom_button_li);
+                    // "text-align": "center"
+                }).appendTo(_this.dom_button_li);
+            $(document.createElement("span"))
+                .css({
+                    "position": "absolute",
+                    "top": "-4px",
+                    "left": "2px"
+                }).text("T").appendTo(_this.dom_button_char);
 
             i = 0;
+            // 按钮-确定
             _this.dom_button_radic = _this.dom_button_pencil.clone()
                 // .attr("class", "")
                 // .addClass("button_radic button_disable nohl")
@@ -240,6 +273,7 @@ function LayerShow_2_5_4() {
                     <path style="fill:${_this.button_color_disable};" d="M364.037087 836.187497c-5.176906 0-10.354835-1.954515-14.334473-5.872754l-1.402953-1.381463c-0.103354-0.102331-0.205685-0.204661-0.306992-0.309038L66.585511 539.439956c-7.869225-8.087189-7.693216-21.022803 0.393973-28.892027 8.086166-7.867178 21.021779-7.692193 28.891004 0.393973l268.255627 275.66948 565.584406-571.97086c7.934716-8.023744 20.87033-8.096399 28.893051-0.162706 8.024767 7.933693 8.096399 20.87033 0.162706 28.894074L378.565988 830.122361C374.569978 834.162374 369.304044 836.187497 364.037087 836.187497z" p-id="1130"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-取消
             _this.dom_button_cancel = _this.dom_button_radic.clone()
                 // .attr("class", "")
                 // .addClass("button_cancel nohl")
@@ -252,6 +286,7 @@ function LayerShow_2_5_4() {
                     <path d="M795.328267 846.827157C803.517069 855.298332 817.02265 855.527241 825.493824 847.338438 833.964998 839.149636 834.193907 825.644055 826.005105 817.172881L207.338438 177.172881C199.149636 168.701706 185.644056 168.472798 177.172881 176.661601 168.701706 184.850403 168.472798 198.355983 176.661601 206.827157L795.328267 846.827157Z" p-id="2388" style=" fill:${_this.button_color_default};"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-恢复
             _this.dom_button_redo = _this.dom_button_radic.clone()
                 // .attr("class", "")
                 // .addClass("button_redo button_disable nohl")
@@ -264,6 +299,7 @@ function LayerShow_2_5_4() {
                     <path d="M127.5904 229.888c82.176-82.176 191.488-127.488 307.712-127.488s225.536 45.2608 307.712 127.488 127.488 191.488 127.488 307.712l0 66.2016 109.8752-109.8752c9.984-9.984 26.2144-9.984 36.1984 0s9.984 26.2144 0 36.1984l-153.6 153.6c-5.0176 5.0176-11.5712 7.4752-18.1248 7.4752s-13.1072-2.5088-18.1248-7.4752l-153.6-153.6c-9.984-9.984-9.984-26.2144 0-36.1984s26.2144-9.984 36.1984 0l109.8752 109.8752 0-66.2016c0-211.7632-172.2368-384-384-384s-384 172.2368-384 384c0 211.7632 172.2368 384 384 384 14.1312 0 25.6 11.4688 25.6 25.6s-11.4688 25.6-25.6 25.6c-116.224 0-225.536-45.2608-307.712-127.488s-127.488-191.488-127.488-307.712c0-116.224 45.2608-225.536 127.488-307.712z" p-id="1669" style=" fill:${_this.button_color_disable};"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-重做
             _this.dom_button_undo = _this.dom_button_redo.clone()
                 // .attr("class", "")
                 // .addClass("button_undo button_disable nohl")
@@ -276,6 +312,7 @@ function LayerShow_2_5_4() {
                     <path d="M174,44.9a82.87,82.87,0,0,0-118.44,0A85.11,85.11,0,0,0,31,105v12.93L9.87,96.47a4.88,4.88,0,0,0-7,0,5.06,5.06,0,0,0,0,7.07l29.56,30a4.9,4.9,0,0,0,7,0l29.56-30a5.06,5.06,0,0,0,0-7.07,4.88,4.88,0,0,0-7,0L40.89,117.93V105c0-41.36,33.15-75,73.9-75s73.9,33.64,73.9,75-33.15,75-73.9,75a5,5,0,0,0,0,10A82.57,82.57,0,0,0,174,165.1a85.87,85.87,0,0,0,0-120.2Z" transform="translate(-1.46 -20)" style="fill:${_this.button_color_disable}"/></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-分隔线
             _this.dom_button_split = _this.dom_button_radic.clone()
                 .attr("class", "")
                 .addClass("button_split")
@@ -288,6 +325,7 @@ function LayerShow_2_5_4() {
                     <path d="M95,0h10V200H95Z" transform="translate(-95)" style="fill:${_this.button_color_disable}"/></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-放大
             _this.dom_button_larger = _this.dom_button_radic.clone()
                 // .attr("class", "")
                 // .addClass("button_arger nohl")
@@ -299,6 +337,7 @@ function LayerShow_2_5_4() {
                     <path style="fill:${_this.button_color_default}" d="M950.349 925.799l-166.19-166.187a416.683 416.683 0 0 1-26.635 26.635l166.188 166.189c7.355 7.353 19.279 7.353 26.637 0 7.353-7.357 7.353-19.282 0-26.637zM478.156 103.561c-208.036 0-376.682 168.646-376.682 376.684 0 208.034 168.646 376.68 376.682 376.68s376.682-168.646 376.682-376.68c0-208.038-168.646-376.684-376.682-376.684z m0 715.697c-187.232 0-339.014-151.784-339.014-339.014 0-187.233 151.782-339.014 339.014-339.014S817.17 293.011 817.17 480.244c0 187.23-151.782 339.014-339.014 339.014zM647.663 461.41H496.99V310.736c0-10.4-8.432-18.832-18.834-18.832s-18.832 8.432-18.832 18.832V461.41H308.649c-10.4 0-18.834 8.43-18.834 18.834 0 10.4 8.434 18.832 18.834 18.832h150.675v150.673c0 10.404 8.43 18.836 18.832 18.836 10.402 0 18.834-8.432 18.834-18.836V499.077h150.673c10.404 0 18.836-8.432 18.836-18.832 0-10.405-8.432-18.835-18.836-18.835z" p-id="1963"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-缩小
             _this.dom_button_smaller = _this.dom_button_larger.clone()
                 // .attr("class", "")
                 // .addClass("button_smaller button_disable nohl")
@@ -310,6 +349,7 @@ function LayerShow_2_5_4() {
                     <path style="fill:${_this.button_color_disable}" d="M479.604 103.525c-207.839 0-376.327 168.488-376.327 376.331 0 207.839 168.488 376.327 376.327 376.327 207.841 0 376.331-168.488 376.331-376.327 0-207.842-168.49-376.331-376.331-376.331z m0 715.028c-187.056 0-338.696-151.642-338.696-338.696 0-187.058 151.64-338.696 338.696-338.696 187.058 0 338.696 151.638 338.696 338.696 0 187.054-151.638 338.696-338.696 338.696z m471.749 106.441L785.32 758.961a416.71 416.71 0 0 1-26.611 26.611L924.74 951.606c7.35 7.346 19.264 7.346 26.612 0 7.349-7.35 7.349-19.264 0.001-26.612zM648.954 461.04H310.257c-10.392 0-18.818 8.422-18.818 18.816 0 10.39 8.426 18.815 18.818 18.815h338.696c10.391 0 18.815-8.424 18.815-18.815 0-10.394-8.424-18.816-18.814-18.816z" p-id="959"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-拖拽
             _this.dom_button_drag = _this.dom_button_larger.clone()
                 // .attr("class", "")
                 // .addClass("button_drag button_disable")
@@ -321,6 +361,7 @@ function LayerShow_2_5_4() {
                     <path style="fill:${_this.button_color_disable}" d="M876.544 530.432h-272.384c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h272.384l-112.64-112.64c-8.192-8.192-8.192-20.48 0-28.672 8.192-8.192 20.48-8.192 28.672 0l145.408 145.408c2.048 2.048 4.096 6.144 6.144 10.24 2.048 8.192 2.048 16.384-4.096 22.528l-145.408 145.408c-8.192 8.192-20.48 8.192-28.672 0-8.192-8.192-8.192-20.48 0-28.672l110.592-112.64z m-741.376 0l110.592 110.592c8.192 8.192 8.192 20.48 0 28.672-8.192 8.192-20.48 8.192-28.672 0l-145.408-145.408c-6.144-6.144-8.192-14.336-4.096-22.528 0-4.096 2.048-6.144 6.144-10.24l145.408-145.408c8.192-8.192 20.48-8.192 28.672 0 8.192 8.192 8.192 20.48 0 28.672l-112.64 112.64h272.384c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-272.384z m356.352 335.872v-272.384c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v272.384l112.64-112.64c8.192-8.192 20.48-8.192 28.672 0 8.192 8.192 8.192 20.48 0 28.672l-145.408 145.408c-2.048 2.048-6.144 4.096-10.24 6.144-8.192 2.048-16.384 2.048-22.528-4.096l-145.408-145.408c-8.192-8.192-8.192-20.48 0-28.672 8.192-8.192 20.48-8.192 28.672 0l112.64 110.592z m0-720.896l-110.592 110.592c-8.192 8.192-20.48 8.192-28.672 0-8.192-8.192-8.192-20.48 0-28.672l145.408-145.408c6.144-6.144 14.336-8.192 22.528-4.096 4.096 0 6.144 2.048 10.24 6.144l145.408 145.408c8.192 8.192 8.192 20.48 0 28.672-8.192 8.192-20.48 8.192-28.672 0l-112.64-112.64v272.384c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-272.384z" p-id="6815"></path></svg>
                 `).appendTo(_this.dom_button_li);
 
+            // 按钮-分隔线
             _this.dom_button_split_2 = _this.dom_button_split.clone()
                 .attr("class", "")
                 .addClass("button_split")
@@ -330,6 +371,126 @@ function LayerShow_2_5_4() {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
                     <path d="M95,0h10V200H95Z" transform="translate(-95)" style="fill:${_this.button_color_disable}"/></svg>
                 `).appendTo(_this.dom_button_li);
+
+            // 样式栏
+            _this.dom_styleArea = $(document.createElement("div"))
+                .addClass("styleArea")
+                .css({
+                    "height": (_this.button_height_px * 4 / 5) + "px",
+                    "background": "#fff",
+                    "border-radius": "3px",
+                    "border": "#333",
+                    "position": "absolute",
+                    "top": (-_this.button_height_px) + "px"
+                }).appendTo(_this.dom_button_li);
+
+            // 样式栏三角
+            _this.dom_styleArea_arrow = $(document.createElement("span"))
+                .css({
+                    "position": "absolute",
+                    "width": "0",
+                    "height": "0",
+                    "border-top": "solid " + (_this.button_height_px * 1 / 10) + "px #fff",
+                    "border-left": "solid " + (_this.button_height_px * 1 / 10) + "px transparent",
+                    "border-right": "solid " + (_this.button_height_px * 1 / 10) + "px transparent",
+                    "top": _this.dom_styleArea.css("height")
+                }).appendTo(_this.dom_styleArea);
+
+            // 样式栏按钮-列表
+            _this.dom_styleArea_button_ul = $(document.createElement("ul"))
+                .css({
+                    "margin-top": "6px"
+                }).appendTo(_this.dom_styleArea);
+
+            // 样式栏按钮-收起
+            _this.dom_styleArea_button_retract = $(document.createElement("li"))
+                .css({
+                    "cursor": "pointer",
+                    "float": "left",
+                    "margin-left": `${_this.dom_styleArea_arrow.css("border-top-width").replace("px", "")*2+1}px`,
+                    "width": `${width}px`,
+                    "height": `${width}px`,
+                    "transform": "rotate(180deg)"
+                }).appendTo(_this.dom_styleArea_button_ul)
+                .html(`
+                        <svg t="1530500805732" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2401" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${width}">
+                        <path style="fill:${_this.button_color_disable}" d="M512 128c212 0 384 172 384 384S724 896 512 896 128 724 128 512s172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m272 530.4L557.6 368 512 322.4 466.4 368 240 594.4l45.6 45.6L512 413.6 738.4 640l45.6-45.6z" p-id="2402"></path></svg>
+                    `);
+
+            // 样式栏按钮-笔触
+            _this.dom_styleArea_button_width_panel = $(document.createElement("li"))
+                .css({
+                    "float": "left",
+                    "height": `${width}px`,
+                    "text-align": "left",
+                    "vertical-align": "middle"
+                }).appendTo(_this.dom_styleArea_button_ul);
+
+            // 样式栏按钮-笔触-1
+            _this.dom_styleArea_button_width_a = $(document.createElement("span"))
+                .css({
+                    "float": "left",
+                    "width": `6px`,
+                    "height": `6px`,
+                    "margin-top": "6px",
+                    "margin-left": "20px",
+                    "border-radius": `3px`,
+                }).appendTo(_this.dom_styleArea_button_width_panel);
+
+            // 样式栏按钮-笔触-2
+            _this.dom_styleArea_button_width_b = _this.dom_styleArea_button_width_a.clone()
+                .css({
+                    "width": "12px",
+                    "height": "12px",
+                    "margin-top": "3px",
+                    "border-radius": "6px",
+                }).appendTo(_this.dom_styleArea_button_width_panel);
+
+            // 样式栏按钮-笔触-3
+            _this.dom_styleArea_button_width_c = _this.dom_styleArea_button_width_a.clone()
+                .css({
+                    "width": "16px",
+                    "height": "16px",
+                    "margin-top": "1px",
+                    "border-radius": "8px",
+                }).appendTo(_this.dom_styleArea_button_width_panel);
+
+            // 样式栏按钮-颜色
+            _this.dom_styleArea_button_color_panel = $(document.createElement("li"))
+                .css({
+                    "cursor": "pointer",
+                    "float": "left",
+                    "margin-left": "20px",
+                    "width": "50px",
+                    "height": "20px",
+                    "position": "relative"
+                }).appendTo(_this.dom_styleArea_button_ul);
+
+            // 样式栏按钮-颜色-选择列表
+            _this.dom_styleArea_button_color_selector = $(document.createElement("ul"))
+                .css({
+                    "position": "absolute",
+                    "width": _this.dom_styleArea_button_color_panel.css("width"),
+                    "height": `${(20+5)*_this.action_colors.length+10}px`,
+                    "left": "0",
+                    "bottom": "0",
+                    "border": `solid 1px ${_this.button_color_default}`,
+                    "border-radius": "5px 5px 0 0",
+                    "background": "#fff"
+                }).appendTo(_this.dom_styleArea_button_color_panel);
+
+            // 样式栏按钮-颜色-选择列表-li
+            _this.dom_styleArea_button_color_selector_li = $(document.createElement("li"))
+                .css({
+                    "margin": "5px",
+                    "border": `solid 1px ${_this.button_color_disable}`,
+                    "height": `20px`
+                });
+            _this.action_colors.forEach(function(color) {
+                _this.dom_styleArea_button_color_selector_li.clone().css({
+                    "background": color
+                }).appendTo(_this.dom_styleArea_button_color_selector);
+            });
 
             // 图片容器盒（放置图片的盒）
             _this.dom_image_li_image = $(document.createElement("div"));
@@ -371,8 +532,8 @@ function LayerShow_2_5_4() {
 
             _this.canvas_draw(_this.ctx, act, params);
 
-            debug.log(`ImageMarkPen 356: canvas_record_now_index=${_this.canvas_record_now_index}, canvas_record=`);
-            debug.log(_this.canvas_record);
+            debug.debug(`ImageMarkPen 535: canvas_record_now_index=${_this.canvas_record_now_index}, canvas_record=`);
+            debug.debug(_this.canvas_record);
         },
 
         // canvas执行绘画
@@ -382,9 +543,9 @@ function LayerShow_2_5_4() {
                     ctx.drawImage(params.img, params.x, params.y, params.width, params.height);
                     break;
                 case "rect":
-                    ctx.strokeRect(params.x, params.y, params.width, params.height);
                     ctx.strokeStyle = params.color;
                     ctx.lineWidth = params.lineWidth;
+                    ctx.strokeRect(params.x, params.y, params.width, params.height);
                     break;
                 default:
                     break;
@@ -443,25 +604,56 @@ function LayerShow_2_5_4() {
                 return;
 
             _this.dom_button_rect.attr("class", "button_rect").css("border-color", _this.button_color_default);
-            _this.dom_button_circle.attr("class", "button_circle").css("border-color", _this.button_color_default);;
+            _this.dom_button_circle.attr("class", "button_circle").css("border-color", _this.button_color_default);
             _this.dom_button_pencil.attr("class", "button_pencil").find("path").css("fill", _this.button_color_default);
             _this.dom_button_char.attr("class", "button_char").css("color", _this.button_color_default);
-            _this.dom_button_radic.attr("class", "button_radic button_disable nohl")
+            _this.dom_button_radic.attr("class", "button_radic button_disable nohl");
             _this.dom_button_cancel.attr("class", "button_cancel nohl");
             _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css({ "cursor": "default" });
             _this.dom_button_undo.attr("class", "button_undo button_disable nohl").css({ "cursor": "default" });
             _this.dom_button_larger.attr("class", "button_larger nohl");
             _this.dom_button_smaller.attr("class", "button_smaller button_disable nohl").css({ "cursor": "default" });
-            _this.dom_button_drag.attr("class", "button_drag button_disable").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_default);;
+            _this.dom_button_drag.attr("class", "button_drag button_disable").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_default);
+            _this.dom_button_now_flag.css({ "display": "none" });
 
             _this.action = "";
+            _this.action_color = _this.action_colors[0];
+            _this.action_lineWidth = _this.action_lineWidth_a;
 
+            _this.styleArea_resetStyle.apply(_this);
+
+        },
+
+        // styleArea 按钮样式重置
+        styleArea_resetStyle: function() {
+            var _this = this;
+            _this.dom_styleArea.css({ "display": "none" });
+            _this.dom_styleArea_button_width_panel.css({ "display": "none" });
+            _this.dom_styleArea_button_width_a.css({
+                "cursor": `${_this.action_lineWidth==_this.action_lineWidth_a?"default":"pointer"}`,
+                "background": `${_this.action_lineWidth==_this.action_lineWidth_a?_this.action_color:_this.button_color_disable}`
+            });
+            _this.dom_styleArea_button_width_b.css({
+                "cursor": `${_this.action_lineWidth==_this.action_lineWidth_b?"default":"pointer"}`,
+                "background": `${_this.action_lineWidth==_this.action_lineWidth_b?_this.action_color:_this.button_color_disable}`
+            });
+            _this.dom_styleArea_button_width_c.css({
+                "cursor": `${_this.action_lineWidth==_this.action_lineWidth_c?"default":"pointer"}`,
+                "background": `${_this.action_lineWidth==_this.action_lineWidth_c?_this.action_color:_this.button_color_disable}`
+            });
+            _this.dom_styleArea_button_color_panel.css({
+                "display": "none",
+                "background": `${_this.action_color}`
+            });
+            _this.dom_styleArea_button_color_selector.css({
+                "display": "none"
+            });
         },
 
         // 按钮修改高亮状态 @button: $(obj); @hl: true|else
         button_changeHighLight: function(button, hl) {
             var _this = this;
-            var color = hl === true ? _this.button_color_highlight : _this.button_color_default;
+            var color = hl === true ? _this.action_color : _this.button_color_default;
             if (button.find("path").length > 0)
                 button.find("path").css("fill", color);
             else
@@ -471,10 +663,179 @@ function LayerShow_2_5_4() {
                 });
         },
 
+        // 样式栏显示
+        // @hl_button_obj: 当前高亮按钮对象
+        styleArea_show: function(hl_button_obj) {
+            var _this = this,
+                width_px,
+                styles = [];
+            switch (hl_button_obj) {
+                case _this.dom_button_rect:
+                    width_px = 210;
+                    styles = ["lineWidth", "color"];
+                    break;
+                default:
+                    break;
+            }
+
+            _this.styleArea_resetStyle.apply(_this);
+
+            styles.forEach(function(style) {
+                switch (style) {
+                    case "lineWidth":
+                        _this.dom_styleArea_button_width_panel.css({
+                            "display": "block"
+                        });
+                        break;
+                    case "color":
+                        _this.dom_styleArea_button_color_panel.css({
+                            "display": "block"
+                        });
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            _this.dom_styleArea.css({
+                "display": "block",
+                "width": width_px + "px",
+                "left": `${hl_button_obj.css("left").replace("px", "") - _this.dom_styleArea_arrow.css("border-top-width").replace("px", "")*2}px`
+            });
+
+            _this.dom_styleArea_arrow.css({
+                "left": `${hl_button_obj.width() / 2+~~_this.dom_styleArea_arrow.css("border-top-width").replace("px", "")+1}px`
+            });
+
+            _this.styleArea_button_Listener.apply(_this);
+        },
+
+        // 样式栏按钮监听
+        styleArea_button_Listener: function() {
+            var _this = this;
+            var hover_handler = function(obj) {
+                if (obj.css("cursor") == "default")
+                    return;
+
+                if (obj.find("path").length > 0) {
+                    obj.find("path").css({
+                        "fill": _this.button_color_default
+                    });
+                } else {
+                    obj.css({
+                        "background": _this.button_color_default
+                    });
+                }
+            };
+            var out_handler = function(obj) {
+                if (obj.css("cursor") == "default")
+                    return;
+
+                if (obj.find("path").length > 0) {
+                    obj.find("path").css({
+                        "fill": _this.button_color_disable
+                    });
+                } else {
+                    obj.css({
+                        "background": _this.button_color_disable
+                    });
+                }
+            };
+
+            // 收起
+            _this.dom_styleArea_button_retract.unbind("mouseover").on("mouseover", function() {
+                hover_handler($(this));
+            }).unbind("mouseout").on("mouseout", function() {
+                out_handler($(this));
+            }).unbind("click").on("click", function() {
+                debug.log(`ImageMarkPen 751: 收起按钮 click`);
+                _this.dom_styleArea.css({
+                    "display": "none"
+                });
+            });
+
+            // lineWidth
+            _this.dom_styleArea_button_width_panel.find("span").unbind("click").on("click", function() {
+                debug.log(`ImageMarkPen 759: lineWidth按钮 click`);
+                switch ($(this).index()) {
+                    case 0:
+                        _this.action_lineWidth = 3;
+                        break;
+                    case 1:
+                        _this.action_lineWidth = 6;
+                        break;
+                    case 2:
+                        _this.action_lineWidth = 9;
+                        break;
+                    default:
+                        break;
+                }
+                $(this).css({
+                    "cursor": "default",
+                    "background": _this.action_color
+                }).siblings().css({
+                    "cursor": "pointer",
+                    "background": _this.button_color_disable
+                });
+            });
+
+            // color
+            _this.dom_styleArea_button_color_panel.unbind("click").on("click", function(e) {
+                debug.log(`ImageMarkPen 784: 颜色按钮 click`);
+                e.stopPropagation();
+                _this.dom_styleArea_button_color_selector.css("display", "block");
+
+                $(window).one("click", function() {
+                    _this.dom_styleArea_button_color_selector.css("display", "none");
+                });
+            }).find("li").unbind("click").on("click", function(e) {
+                e.stopPropagation();
+                _this.action_color = _this.action_colors[$(this).index()];
+                debug.log(`ImageMarkPen 794: 颜色 click：${_this.action_color}`);
+                // 颜色色块
+                _this.dom_styleArea_button_color_panel.css({
+                    "background-color": _this.action_color
+                });
+                // 宽度颜色
+                var width_buttons = _this.dom_styleArea_button_width_panel.find("span");
+                var width_button;
+                for (var i = 0, len = width_buttons.length; i < len; i++) {
+                    width_button = $(width_buttons[i]);
+                    if (width_button.css("cursor") == "default") {
+                        width_button.css({
+                            "background-color": _this.action_color
+                        });
+                        break;
+                    }
+                }
+
+                // 按钮颜色
+                var button_now = _this.dom_button_li.find(".button_now");
+                if (button_now.find("path").length === 0) {
+                    button_now.css({
+                        "border-color": _this.action_color,
+                        "color": _this.action_color
+                    });
+                } else {
+                    button_now.find("path").css({
+                        "fill": _this.action_color
+                    });
+                }
+
+                // 按钮使用中标记颜色
+                _this.dom_button_now_flag.css({
+                    "background": _this.action_color
+                });
+
+                // 隐藏颜色选择列表
+                _this.dom_styleArea_button_color_selector.css("display", "none");
+            });
+        },
+
         // 按钮监听
         button_Listener: function() {
             var _this = this;
-            var buttons = _this.dom_button_li.find("div:not(.button_split)");
+            var buttons = _this.dom_button_li.find("div:not(.button_split,.styleArea,.button_style)");
             buttons.unbind().on("mouseover", function() {
                 // debug.debug("ImageMarkPen 404: ");
                 // debug.debug($(this).hasClass("button_disable"));
@@ -488,6 +849,9 @@ function LayerShow_2_5_4() {
                 _this.button_changeHighLight.apply(_this, [$(this), false]);
 
             }).on("click", function() {
+
+                debug.log(`ImageMarkPen 849 button_Listener(): button click`);
+
                 if ($(this).hasClass("nohl") || $(this).hasClass("button_disable"))
                     return;
                 var now = $(this).siblings(".button_now");
@@ -495,6 +859,10 @@ function LayerShow_2_5_4() {
                 _this.button_changeHighLight.apply(_this, [now, false]);
                 $(this).addClass("button_now");
                 _this.button_changeHighLight.apply(_this, [$(this), true]);
+
+                _this.dom_button_now_flag.css({ "display": "block" }).appendTo($(this));
+
+                _this.styleArea_resetStyle.apply(_this);
             });
 
             // rect
@@ -529,6 +897,8 @@ function LayerShow_2_5_4() {
             });
 
             _this.action = "rect";
+
+            _this.styleArea_show.apply(_this, [_this.dom_button_rect]);
         },
 
         // 设置宽高和位置
