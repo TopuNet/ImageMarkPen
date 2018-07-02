@@ -503,7 +503,7 @@ function LayerShow_2_5_4() {
         },
 
         // canvas记录操作历史，用于undo和redo
-        // @params: {img,x,y,width,height}
+        // @params: {img,x,y,width,height,radius}
         canvas_add: function(act, params) {
             var _this = this;
 
@@ -538,14 +538,19 @@ function LayerShow_2_5_4() {
 
         // canvas执行绘画
         canvas_draw: function(ctx, act, params) {
+            ctx.strokeStyle = params.color;
+            ctx.lineWidth = params.lineWidth;
             switch (act) {
                 case "drawImage":
                     ctx.drawImage(params.img, params.x, params.y, params.width, params.height);
                     break;
                 case "rect":
-                    ctx.strokeStyle = params.color;
-                    ctx.lineWidth = params.lineWidth;
                     ctx.strokeRect(params.x, params.y, params.width, params.height);
+                    break;
+                case "circle":
+                    ctx.beginPath();
+                    ctx.arc(params.x, params.y, params.radius, 0, 360);
+                    ctx.stroke();
                     break;
                 default:
                     break;
@@ -870,6 +875,11 @@ function LayerShow_2_5_4() {
                 _this.button_rect_handler.apply(_this);
             });
 
+            // circle
+            _this.dom_button_circle.on("click", function() {
+                _this.button_circle_handler.apply(_this);
+            });
+
             // undo
             _this.dom_button_undo.on("click", function() {
                 _this.canvas_undo.apply(_this);
@@ -897,6 +907,18 @@ function LayerShow_2_5_4() {
             });
 
             _this.action = "rect";
+
+            _this.styleArea_show.apply(_this, [_this.dom_button_rect]);
+        },
+
+        // 按钮监听-圆形
+        button_circle_handler: function() {
+            var _this = this;
+            _this.dom_image.css({
+                "cursor": "crosshair"
+            });
+
+            _this.action = "circle";
 
             _this.styleArea_show.apply(_this, [_this.dom_button_rect]);
         },
@@ -1159,11 +1181,12 @@ function LayerShow_2_5_4() {
                                 y: e.offsetY
                             };
                             _this.canvas_undo.apply(_this);
-                            _this.canvas_add.apply(_this, ["rect", {
+                            _this.canvas_add.apply(_this, [_this.action, {
                                 x: startPos.x,
                                 y: startPos.y,
                                 width: nowPos.x - startPos.x,
-                                height: nowPos.y - startPos.y
+                                height: nowPos.y - startPos.y,
+                                radius: Math.sqrt(Math.pow(nowPos.x - startPos.x, 2) + Math.pow(nowPos.y - startPos.y, 2))
                             }]);
 
                         });
