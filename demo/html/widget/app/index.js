@@ -2,24 +2,41 @@ define([
     "modules/debug",
     "lib/ImageMarkPen"
 ], function($debug, $ImageMarkPen) {
-    return $index = {
-        init: (opt) => {
+    const $index = {
+        init: () => {
             $debug.warn(`index 6: init()`);
 
             $index.ShowMarkLayer();
         },
         // 弹层
         ShowMarkLayer: () => {
-            $debug.debug(`index 13: ${$ImageMarkPen}`);
-            $ImageMarkPen.show({
-                Pics: '/4.jpg',
-                callback_before: () => $debug.debug('index 16: callback_before()'),
-                callback_success: () => $debug.debug('index 16: callback_success()'),
-                callback_close: () => {
-                	$debug.debug('index 16: callback_close()')
-                	$index.ShowMarkLayer();
-                }
+            $("ul.panel li").on("click", function() {
+                const index = $(this).index();
+
+                $ImageMarkPen.show({
+                    Pics: `${index+1}.jpg`,
+                    DrawRecord: this.DrawRecord,
+                    callback_before: () => $debug.warn('index 18: callback_before()'),
+                    callback_success: () => $debug.warn('index 19: callback_success()'),
+                    callback_button_cancal: () => {
+                        $debug.warn('index 21: callback_button_cancal()');
+                        $ImageMarkPen.close();
+                    },
+                    callback_button_finish: (base64, DrawRecord) => {
+                        $debug.warn('index 25: callback_button_finish()');
+                        $debug.log(base64);
+                        $debug.log(DrawRecord);
+
+                        this.DrawRecord = DrawRecord;
+
+                        $ImageMarkPen.close();
+                    },
+                    callback_close: () => {
+                        $debug.warn('index 21: callback_close()');
+                    }
+                });
             });
         }
     };
+    return $index;
 });

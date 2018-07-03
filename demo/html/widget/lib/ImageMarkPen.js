@@ -1,5 +1,5 @@
 /*
-    0.1.1
+    1.1.1
     高京
     2018-06-29
 */
@@ -10,11 +10,14 @@ const ImageMarkPen = {
     opt_assign: (opt) => {
         const opt_default = {
             Pics: '', // 图片路径。 无默认值
-            z_index: 400, // 弹层的z-index。 图片/图文内容层为z_index+1。 默认400
+            DrawRecord: [], // 默认绘制记录，数组。无默认值
+            z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
             bg_color: '#000000', // 背景层16进制颜色。 默认 #000000
             bg_opacity: 0.8, // 背景层透明度，0～1。默认0.8
             callback_before: null, // 弹层前执行，如显示loading，无默认
             callback_success: null, // 弹层后回调，如隐藏loading，无默认
+            callback_button_cancal: null, // 点击关闭按钮后的回调，无默认。如需关闭弹层请调用close()
+            callback_button_finish: null, // 点击完成按钮后的回调，无默认。function(base64,DrawRecord){ @base64: 图片; @DrawRecord: canvas绘制记录数组}。如需关闭弹层请调用close()
             callback_close: null // 关闭弹层后回调，无默认
         };
 
@@ -23,7 +26,7 @@ const ImageMarkPen = {
     // 显示弹层
     show: (opt) => {
         if (isIE678()) {
-            debug.error(`ImageMarkPen 28: isIE678()`);
+            debug.error(`28: isIE678()`);
             return;
         }
 
@@ -45,15 +48,13 @@ const ImageMarkPen = {
             // Pics_scale_fit: showKind = 1 且非ie678时有效。 图片自动缩小到适配尺寸。 true(默认) - 无论图片多大， 都可以全屏显示完整， 不监听拖拽事件； false - 图片原尺寸显示， 拖拽时可改变显示位置(类似图片放大镜的效果)
             // Pics_preload_all: showKind = 1 时有效。 图片预加载所有大图， 移动端建议false(以免图片加载太多影响打开)， pc端建议true(ie不支持svg)。 默认true。
             Pics_close_show: false,
-            // Pics_close_path: 关闭按钮图片路径。 默认 / inc / LayerShow_close.png。
-            callback_image_click: function(e) {
-                debug.debug(`ImageMarkPen 43: `);
-                debug.debug(e);
-            },
             callback_before: ImageMarkPen.opt.callback_before,
             callback_success: ImageMarkPen.opt.callback_success, // 弹层成功(showKind = 1 时只加载了第一张图片)。 回调function(_obj)。 showKind = 1 时_obj为加载的第一且是唯一一张图片的li盒； showKind = 2 时_obj为实例化的jroll对象； 如info_box_use_JRoll为false， 则_obj = undefined。 无默认
             callback_close: ImageMarkPen.opt.callback_close // 关闭弹层后的回调。 info_wrapper_html为showKind = 2 时， $("#info_wrapper").html()。 无默认
         });
+    },
+    close: () => {
+        ImageMarkPen.layerShow_ImageMarkPen.close();
     }
 };
 
@@ -67,19 +68,10 @@ const ImageMarkPen = {
 
 /*
     https://github.com/TopuNet/LayerShow/tree/2.5.4
-
-    * 删除
-     ** 不必要的盒
-     ** Kind=2部分
-     ** 所有关于IE678的判断（放到ImageMarkPen.show()时判断）。
-     ** 图片的横向移动方法
-
-    * 增加
-     ** dom_button_li 操作按钮层
 */
 function LayerShow_2_5_4() {
-    var action_colors = ["#fc3746", "#fd6096", "#d05ace", "#21aad4", "#17a249", "#fece5b", "#fc673b", "#999999", "#000000", "#eeeeee"]
-    action_fontSizes = [9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96];
+    var action_colors = ["#fc3746", "#fd6096", "#d05ace", "#21aad4", "#17a249", "#fece5b", "#fc673b", "#999999", "#000000", "#eeeeee"],
+        action_fontSizes = [9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96];
     return {
         // 图片尺寸占window的比例
         image_size_percent_from_window_width: 0.95,
@@ -426,6 +418,18 @@ function LayerShow_2_5_4() {
                     "vertical-align": "middle"
                 }).appendTo(_this.dom_styleArea_button_ul);
 
+            // 样式栏按钮-字号
+            _this.dom_styleArea_button_fontSize_panel = _this.dom_styleArea_button_width_panel.clone()
+                .css({
+                    "box-sizing": "border-box",
+                    "position": "relative",
+                    "cursor": "pointer",
+                    "width": "40px",
+                    "margin-left": "15px",
+                    "font-size": "9pt",
+                    "text-align": "center"
+                }).appendTo(_this.dom_styleArea_button_ul);
+
             // 样式栏按钮-笔触-1
             _this.dom_styleArea_button_width_a = $(document.createElement("span"))
                 .css({
@@ -454,6 +458,45 @@ function LayerShow_2_5_4() {
                     "margin-top": "1px",
                     "border-radius": "8px",
                 }).appendTo(_this.dom_styleArea_button_width_panel);
+
+            // 样式栏按钮-字号-p
+            _this.dom_styleArea_button_fontSize_p = $(document.createElement("p"))
+                .css({
+                    "text-align": "center",
+                    "height": _this.dom_styleArea_button_fontSize_panel.css("height"),
+                    "line-height": _this.dom_styleArea_button_fontSize_panel.css("height"),
+                    "font-size": "9pt",
+                    "color": _this.action_color
+                }).appendTo(_this.dom_styleArea_button_fontSize_panel);
+
+            // 样式栏按钮-字号-选择列表(在 styleArea_resetStyle()中appendTo)
+            _this.dom_styleArea_button_fontSize_selector = $(document.createElement("ul"))
+                .css({
+                    "box-sizing": "border-box",
+                    "position": "absolute",
+                    "width": _this.dom_styleArea_button_fontSize_panel.css("width"),
+                    "height": `${(20+5)*_this.action_fontSizes.length+10}px`,
+                    "left": "-1px",
+                    "bottom": "-1px",
+                    "border": `solid 1px ${_this.button_color_default}`,
+                    "border-radius": "5px 5px 0 0",
+                    "background": "#fff"
+                }).appendTo(_this.dom_styleArea_button_fontSize_panel);
+
+            // 样式栏按钮-字号-选择列表-li
+            _this.dom_styleArea_button_fontSize_selector_li = $(document.createElement("li"))
+                .css({
+                    "margin": "5px",
+                    "border": `solid 1px ${_this.button_fontSize_disable}`,
+                    "height": `20px`
+                });
+            _this.action_fontSizes.forEach(function(fontSize) {
+                _this.dom_styleArea_button_fontSize_selector_li.clone()
+                    .text(`${fontSize}pt`)
+                    .css({
+                        "font-size": "9pt"
+                    }).appendTo(_this.dom_styleArea_button_fontSize_selector);
+            });
 
             // 样式栏按钮-颜色
             _this.dom_styleArea_button_color_panel = $(document.createElement("li"))
@@ -492,6 +535,12 @@ function LayerShow_2_5_4() {
                 }).appendTo(_this.dom_styleArea_button_color_selector);
             });
 
+            // 字符输入框 - 外盒
+            _this.char_input = $(document.createElement("textarea"))
+                .css({
+                    "display": "none"
+                }).appendTo(_this.dom_image_li);
+
             // 图片容器盒（放置图片的盒）
             _this.dom_image_li_image = $(document.createElement("div"));
 
@@ -503,27 +552,32 @@ function LayerShow_2_5_4() {
         },
 
         // canvas记录操作历史，用于undo和redo
-        // @params: {img,x,y,width,height,radius,x_moveTo,y_moveTo}
+        // @params: {img,x,y,width,height,radius,x_moveTo,y_moveTo,text}
         canvas_add: function(act, params) {
             var _this = this;
 
             // 将undo的操作记录删掉
-            debug.debug("ImageMarkPen 348:");
-            debug.debug(` canvas_record.length=${_this.canvas_record.length}; canvas_now_index=${_this.canvas_record_now_index}`);
+            debug.debug("\n\n568 canvas_add:");
+            debug.debug(` act=${act}; canvas_record.length=${_this.canvas_record.length}; canvas_now_index=${_this.canvas_record_now_index}`);
 
             if (_this.canvas_record.length > _this.canvas_record_now_index)
                 _this.canvas_record.splice(_this.canvas_record_now_index + 1, _this.canvas_record.length - _this.canvas_record_now_index - 1);
 
-            params.color = _this.action_color;
-            params.lineWidth = _this.action_lineWidth;
+            params.color = params.color || _this.action_color;
+            params.lineWidth = params.lineWidth || _this.action_lineWidth;
+            params.font = params.font || _this.action_fontSize;
 
             _this.canvas_record.push({
                 "act": act,
                 "params": params
             });
-            debug.debug(`ImageMarkPen 350: canvas_record_now_index=${this.canvas_record_now_index}`);
+
+            debug.debug(`\n569: canvas_record_now_index=${this.canvas_record_now_index}`);
             if (++_this.canvas_record_now_index > 0) {
                 _this.dom_button_undo.removeClass("button_disable")
+                    .css("cursor", "pointer")
+                    .find("svg path").css("fill", _this.button_color_default);
+                _this.dom_button_radic.removeClass("button_disable")
                     .css("cursor", "pointer")
                     .find("svg path").css("fill", _this.button_color_default);
             }
@@ -532,7 +586,7 @@ function LayerShow_2_5_4() {
 
             _this.canvas_draw(_this.ctx, act, params);
 
-            debug.debug(`ImageMarkPen 535: canvas_record_now_index=${_this.canvas_record_now_index}, canvas_record=`);
+            debug.debug(`\n593: canvas_record_now_index=${_this.canvas_record_now_index}, canvas_record=`);
             debug.debug(_this.canvas_record);
         },
 
@@ -559,6 +613,32 @@ function LayerShow_2_5_4() {
                     ctx.lineTo(params.x_moveTo, params.y_moveTo);
                     ctx.closePath();
                     ctx.stroke();
+                    break;
+                case "text":
+                    ctx.font = `${params.font}pt Arial`;
+                    ctx.fillStyle = params.color;
+
+                    debug.debug(`\n625: text.length=${params.text.length}`);
+                    for (var str_len = 0, substring_s = 0, i = 0, len = params.text.length; i < len; i++) {
+                        str_len += ~~ctx.measureText(params.text[i]).width;
+
+                        debug.debug(`\n630: text=${params.text[i]}, width=${ctx.measureText(params.text[i]).width}, str_len=${str_len}, substring_s=${substring_s}, i=${i}, len=${len}`);
+
+                        if (str_len > params.width)
+                            i--;
+                        if (str_len >= params.width) {
+                            ctx.fillText(params.text.substring(substring_s, i + 1), params.x, params.y);
+                            substring_s = i + 1;
+                            params.y += params.font * 1.5;
+                            str_len = 0;
+                        }
+
+                    }
+
+                    if (str_len > 0)
+                        ctx.fillText(params.text.substring(substring_s), params.x, params.y);
+                    break;
+
                 default:
                     break;
             }
@@ -568,13 +648,16 @@ function LayerShow_2_5_4() {
         canvas_undo: function() {
             var _this = this;
 
-            debug.debug(`ImageMarkPen 381: undo`);
+            debug.debug(`\n655: undo`);
 
             if (--_this.canvas_record_now_index < 0) {
                 _this.canvas_record_now_index = -1;
                 return;
             } else if (_this.canvas_record_now_index === 0) {
                 _this.dom_button_undo.addClass("button_disable")
+                    .css("cursor", "default")
+                    .find("svg path").css("fill", _this.button_color_disable);
+                _this.dom_button_radic.addClass("button_disable")
                     .css("cursor", "default")
                     .find("svg path").css("fill", _this.button_color_disable);
             }
@@ -593,7 +676,7 @@ function LayerShow_2_5_4() {
         canvas_redo: function() {
             var _this = this;
 
-            debug.debug(`ImageMarkPen 421: redo`);
+            debug.debug(`\n680: redo`);
 
             if (_this.canvas_record_now_index >= _this.canvas_record.length - 1)
                 return;
@@ -606,6 +689,9 @@ function LayerShow_2_5_4() {
             }
 
             _this.dom_button_undo.attr("class", "button_undo nohl").css("cursor", "pointer").find("path").css("fill", _this.button_color_default);
+            _this.dom_button_radic.removeClass("button_disable")
+                .css("cursor", "pointer")
+                .find("svg path").css("fill", _this.button_color_default);
         },
 
         // 按钮样式重置
@@ -615,17 +701,19 @@ function LayerShow_2_5_4() {
             if (!_this.dom_button_li)
                 return;
 
+            _this.dom_image.css({ "cursor": "default" });
+
             _this.dom_button_rect.attr("class", "button_rect").css("border-color", _this.button_color_default);
             _this.dom_button_circle.attr("class", "button_circle").css("border-color", _this.button_color_default);
             _this.dom_button_pencil.attr("class", "button_pencil").find("path").css("fill", _this.button_color_default);
             _this.dom_button_char.attr("class", "button_char").css("color", _this.button_color_default);
-            _this.dom_button_radic.attr("class", "button_radic button_disable nohl");
+            _this.dom_button_radic.attr("class", "button_radic button_disable nohl").css("cursor", "default").find("path").css("fill", _this.button_color_disable);
             _this.dom_button_cancel.attr("class", "button_cancel nohl");
-            _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css({ "cursor": "default" });
-            _this.dom_button_undo.attr("class", "button_undo button_disable nohl").css({ "cursor": "default" });
+            _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
+            _this.dom_button_undo.attr("class", "button_undo button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
             _this.dom_button_larger.attr("class", "button_larger nohl");
             _this.dom_button_smaller.attr("class", "button_smaller button_disable nohl").css({ "cursor": "default" });
-            _this.dom_button_drag.attr("class", "button_drag button_disable").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_default);
+            _this.dom_button_drag.attr("class", "button_drag button_disable").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
             _this.dom_button_now_flag.css({ "display": "none" });
 
             _this.action = "";
@@ -653,6 +741,13 @@ function LayerShow_2_5_4() {
                 "cursor": `${_this.action_lineWidth==_this.action_lineWidth_c?"default":"pointer"}`,
                 "background": `${_this.action_lineWidth==_this.action_lineWidth_c?_this.action_color:_this.button_color_disable}`
             });
+            _this.dom_styleArea_button_fontSize_panel.css({
+                "display": "none",
+                "color": `${_this.action_color}`,
+                "border": `dashed 1px ${_this.action_color}`,
+            });
+            _this.dom_styleArea_button_fontSize_p.html(`${_this.action_fontSize}磅&nbsp;`);
+            _this.dom_styleArea_button_fontSize_selector.css({ "display": "none" });
             _this.dom_styleArea_button_color_panel.css({
                 "display": "none",
                 "background": `${_this.action_color}`
@@ -688,6 +783,10 @@ function LayerShow_2_5_4() {
                     width_px = 210;
                     styles = ["lineWidth", "color"];
                     break;
+                case _this.dom_button_char:
+                    width_px = 180;
+                    styles = ["fontSize", "color"];
+                    break;
                 default:
                     break;
             }
@@ -703,6 +802,11 @@ function LayerShow_2_5_4() {
                         break;
                     case "color":
                         _this.dom_styleArea_button_color_panel.css({
+                            "display": "block"
+                        });
+                        break;
+                    case "fontSize":
+                        _this.dom_styleArea_button_fontSize_panel.css({
                             "display": "block"
                         });
                         break;
@@ -762,7 +866,7 @@ function LayerShow_2_5_4() {
             }).unbind("mouseout").on("mouseout", function() {
                 out_handler($(this));
             }).unbind("click").on("click", function() {
-                debug.log(`ImageMarkPen 751: 收起按钮 click`);
+                debug.log(`751: 收起按钮 click`);
                 _this.dom_styleArea.css({
                     "display": "none"
                 });
@@ -770,7 +874,7 @@ function LayerShow_2_5_4() {
 
             // lineWidth
             _this.dom_styleArea_button_width_panel.find("span").unbind("click").on("click", function() {
-                debug.log(`ImageMarkPen 759: lineWidth按钮 click`);
+                debug.log(`759: lineWidth按钮 click`);
                 switch ($(this).index()) {
                     case 0:
                         _this.action_lineWidth = 3;
@@ -793,9 +897,30 @@ function LayerShow_2_5_4() {
                 });
             });
 
+            // fontSize
+            _this.dom_styleArea_button_fontSize_panel.unbind("click").on("click", function(e) {
+                debug.log(`866: 字号 click`);
+                e.stopPropagation();
+                _this.dom_styleArea_button_fontSize_selector.css("display", "block");
+
+                $(window).one("click", function() {
+                    _this.dom_styleArea_button_fontSize_selector.css("display", "none");
+                });
+            }).find("li").unbind("click").on("click", function(e) {
+                e.stopPropagation();
+
+                _this.action_fontSize = _this.action_fontSizes[$(this).index()];
+
+                debug.log(`879: 字号 click：${_this.action_fontSize}`);
+
+                _this.dom_styleArea_button_fontSize_p.html(`${_this.action_fontSize}磅&nbsp;`);
+
+                _this.dom_styleArea_button_fontSize_selector.css("display", "none").appendTo(_this.dom_styleArea_button_fontSize_panel);
+            });
+
             // color
             _this.dom_styleArea_button_color_panel.unbind("click").on("click", function(e) {
-                debug.log(`ImageMarkPen 784: 颜色按钮 click`);
+                debug.log(`855: 颜色按钮 click`);
                 e.stopPropagation();
                 _this.dom_styleArea_button_color_selector.css("display", "block");
 
@@ -805,7 +930,7 @@ function LayerShow_2_5_4() {
             }).find("li").unbind("click").on("click", function(e) {
                 e.stopPropagation();
                 _this.action_color = _this.action_colors[$(this).index()];
-                debug.log(`ImageMarkPen 794: 颜色 click：${_this.action_color}`);
+                debug.log(`794: 颜色 click：${_this.action_color}`);
                 // 颜色色块
                 _this.dom_styleArea_button_color_panel.css({
                     "background-color": _this.action_color
@@ -822,6 +947,14 @@ function LayerShow_2_5_4() {
                         break;
                     }
                 }
+
+                // 字号颜色
+                _this.dom_styleArea_button_fontSize_panel.css({
+                    "border-color": _this.action_color
+                });
+                _this.dom_styleArea_button_fontSize_p.css({
+                    "color": _this.action_color
+                });
 
                 // 按钮颜色
                 var button_now = _this.dom_button_li.find(".button_now");
@@ -851,8 +984,6 @@ function LayerShow_2_5_4() {
             var _this = this;
             var buttons = _this.dom_button_li.find("div:not(.button_split,.styleArea,.button_style)");
             buttons.unbind().on("mouseover", function() {
-                // debug.debug("ImageMarkPen 404: ");
-                // debug.debug($(this).hasClass("button_disable"));
                 if ($(this).hasClass("button_disable"))
                     return;
                 _this.button_changeHighLight.apply(_this, [$(this), true]);
@@ -864,7 +995,7 @@ function LayerShow_2_5_4() {
 
             }).on("click", function() {
 
-                debug.log(`ImageMarkPen 849 button_Listener(): button click`);
+                debug.debug(`998 button_Listener(): button click`);
 
                 if ($(this).hasClass("nohl") || $(this).hasClass("button_disable"))
                     return;
@@ -894,6 +1025,11 @@ function LayerShow_2_5_4() {
                 _this.button_pencil_handler.apply(_this);
             });
 
+            // char
+            _this.dom_button_char.on("click", function() {
+                _this.button_char_handler.apply(_this);
+            });
+
             // undo
             _this.dom_button_undo.on("click", function() {
                 _this.canvas_undo.apply(_this);
@@ -904,12 +1040,14 @@ function LayerShow_2_5_4() {
                 _this.canvas_redo.apply(_this);
             });
 
+            // 完成按钮
+            _this.dom_button_radic.on("click", function() {
+                _this.button_radic_handler.apply(_this);
+            });
+
             // 取消按钮
             _this.dom_button_cancel.on("click", function() {
-                _this.button_resetStyle.apply(_this);
-                _this.canvas_record = [];
-                _this.canvas_record_now_index = -1;
-                _this.close();
+                _this.button_cancel_handler.apply(_this);
             });
         },
 
@@ -949,6 +1087,32 @@ function LayerShow_2_5_4() {
             _this.styleArea_show.apply(_this, [_this.dom_button_pencil]);
         },
 
+        // 按钮监听-字符
+        button_char_handler: function() {
+            var _this = this;
+            _this.dom_image.css({
+                "cursor": "text"
+            });
+
+            _this.action = "char";
+
+            _this.styleArea_show.apply(_this, [_this.dom_button_char]);
+        },
+
+        // 按钮监听-完成
+        button_radic_handler: function() {
+            var _this = this;
+            _this.canvas_record.splice(_this.canvas_record_now_index + 1, _this.canvas_record.length - _this.canvas_record_now_index - 1);
+            ImageMarkPen.opt.callback_button_finish && ImageMarkPen.opt.callback_button_finish(_this.dom_image[0].toDataURL(), _this.canvas_record);
+        },
+
+        // 按钮监听-取消
+        button_cancel_handler: function() {
+            debug.debug(`\n1107 button_cancel_handler() ImageMarkPen=`);
+            debug.debug(ImageMarkPen);
+            ImageMarkPen.opt.callback_button_cancal && ImageMarkPen.opt.callback_button_cancal();
+        },
+
         // 设置宽高和位置
         resize: function() {
             var _this = this;
@@ -968,7 +1132,7 @@ function LayerShow_2_5_4() {
                 _this.li_item_width_px = _this.li_width_px + _this.li_marginLeft_px;
 
                 // 计算图片li盒的高度
-                _this.li_height_px = _this.window_height_px * _this.image_size_percent_from_window_height;
+                _this.li_height_px = _this.window_height_px * _this.image_size_percent_from_window_height - _this.button_height_px * 1.2;
 
                 // 背景层
                 _this.dom_bg_layer.css({
@@ -998,7 +1162,7 @@ function LayerShow_2_5_4() {
                 // 图片li盒
                 _this.dom_image_li.css({
                     "width": _this.li_width_px + "px",
-                    "height": (_this.li_height_px - _this.button_height_px * 1.2) + "px",
+                    "height": (_this.li_height_px) + "px",
                     "margin-top": _this.li_marginTop_px + "px",
                     "margin-left": _this.li_marginLeft_px + "px"
                 });
@@ -1007,15 +1171,13 @@ function LayerShow_2_5_4() {
                 if (_this.img_obj) {
 
                     // 计算图片应显示尺寸
-                    var img_size = _this.img_size = _this.imageGetSize.apply(_this, [_this.img_obj]);
+                    debug.debug(`\n1161: call imageGetSize()`);
+                    var img_size = _this.img_size = _this.imageGetSize.apply(_this, [_this.img_obj, { width: _this.li_width_px, height: _this.li_height_px }]);
+                    debug.debug(`\n1163: imageGetSize success`);
+                    debug.debug(` img_height=${img_size.img_height}; button_height_px=${_this.button_height_px}`);
 
-                    debug.debug(`ImageMarkPen 231: img_height=${img_size.img_height}; button_height_px=${_this.button_height_px}`);
-
-                    // img_size.img_height -= _this.button_height_px * 1.5;
-
-                    debug.debug(`ImageMarkPen 235: img_height=${img_size.img_height}`);
-
-                    _this.dom_image.attr("width", img_size.img_width)
+                    _this.dom_image
+                        .attr("width", img_size.img_width)
                         .attr("height", img_size.img_height)
                         .css({
                             // "width": img_size.img_width + "px",
@@ -1024,22 +1186,21 @@ function LayerShow_2_5_4() {
                             "margin-left": -img_size.img_width / 2 + "px"
                         });
 
-                    debug.debug(`ImageMarkPen 470:`);
+                    debug.debug(`\n1182: 获得图片尺寸，创建ctx: `);
                     debug.debug(_this.ctx);
 
-                    if (_this.ctx) {
-                        _this.canvas_add("clearRect", {
-                            "x": 0,
-                            "y": 0,
-                            "width": img_size.img_width,
-                            "height": img_size.img_height
-                        });
-                        _this.canvas_record_now_index = -1;
-                        _this.canvas_record = [];
-                    } else
-                        _this.ctx = _this.dom_image[0].getContext("2d");
+                    // if (_this.ctx) {
+                    //     _this.canvas_add("clearRect", {
+                    //         "x": 0,
+                    //         "y": 0,
+                    //         "width": img_size.img_width,
+                    //         "height": img_size.img_height
+                    //     });
+                    //     _this.canvas_record_now_index = -1;
+                    //     _this.canvas_record = [];
+                    // } else
+                    _this.ctx = _this.dom_image[0].getContext("2d");
 
-                    debug.debug(`ImageMarkPen 480: _this.ctx=${_this.ctx}; _this.img_obj=${_this.img_obj}`);
                     setTimeout(function() {
                         _this.canvas_add("drawImage", {
                             "img": _this.img_obj,
@@ -1048,7 +1209,15 @@ function LayerShow_2_5_4() {
                             "width": img_size.img_width,
                             "height": img_size.img_height
                         });
+
+                        // 恢复canvas_record
+                        if (ImageMarkPen.opt.DrawRecord && ImageMarkPen.opt.DrawRecord.length) {
+                            for (var i = 1, len = ImageMarkPen.opt.DrawRecord.length; i < len; i++) {
+                                _this.canvas_add(ImageMarkPen.opt.DrawRecord[i].act, ImageMarkPen.opt.DrawRecord[i].params);
+                            }
+                        }
                     }, 0);
+
                     // 按钮盒
                     _this.dom_button_li.css({
                         "width": img_size.img_width < _this.button_box_minWidth_px ? _this.button_box_minWidth_px : img_size.img_width + "px",
@@ -1060,17 +1229,17 @@ function LayerShow_2_5_4() {
             resize_doms();
 
             // 监听窗口resize
-            var resize_n = 0;
-            var resize_do = function() {
-                if (++resize_n > 1)
-                    return;
-                if (_this.dom_bg_layer.width() !== 0) {
-                    setTimeout(function() {
-                        resize_doms();
-                        resize_n = 0;
-                    }, 0);
-                }
-            };
+            // var resize_n = 0;
+            // var resize_do = function() {
+            //     if (++resize_n > 1)
+            //         return;
+            //     if (_this.dom_bg_layer.width() !== 0) {
+            //         setTimeout(function() {
+            //             resize_doms();
+            //             resize_n = 0;
+            //         }, 0);
+            //     }
+            // };
             // $(window).unbind("resize", resize_do).bind("resize", resize_do);
 
         },
@@ -1185,16 +1354,19 @@ function LayerShow_2_5_4() {
 
             var startPos = { x: -1, y: -1 };
             var nowPos = { x: -1, y: -1 };
+            var moved;
+            var img_left_px = _this.dom_image_li.width() / 2 + ~~_this.dom_image.css("margin-left").replace("px", ""),
+                img_top_px = _this.dom_image_li.height() / 2 + ~~_this.dom_image.css("margin-top").replace("px", "");
+            debug.debug(`\n1338: img_left_px=${img_left_px};img_top_px=${img_top_px}`);
             _this.dom_image.unbind("mousedown").on("mousedown", function(e) {
                 startPos = {
                     x: e.offsetX,
                     y: e.offsetY
                 };
-                debug.debug(`ImageMarkPen 727`);
+                debug.debug(`\n1351 _this.dom_image.mousedown(e) e=`);
                 debug.debug(e);
 
-                // 没用，为了下面先undo，后add
-                _this.canvas_add.apply(_this, ["moveto", { x: 0, y: 0 }]);
+                moved = false;
 
                 switch (_this.action) {
                     case "rect":
@@ -1204,7 +1376,11 @@ function LayerShow_2_5_4() {
                                 x: e.offsetX,
                                 y: e.offsetY
                             };
-                            _this.canvas_undo.apply(_this);
+                            if (moved === true)
+                                _this.canvas_undo.apply(_this);
+                            else
+                                moved = true;
+
                             _this.canvas_add.apply(_this, [_this.action, {
                                 x: startPos.x,
                                 y: startPos.y,
@@ -1217,20 +1393,73 @@ function LayerShow_2_5_4() {
                         break;
                     case "pencil":
                         _this.dom_image.unbind("mouseover").on("mousemove", function(e) {
-                            newPos = {
+                            nowPos = {
                                 x: e.offsetX,
                                 y: e.offsetY
                             };
-                            _this.canvas_undo.apply(_this);
+
+                            if (moved === true)
+                                _this.canvas_undo.apply(_this);
+                            else
+                                moved = true;
+
                             _this.canvas_add.apply(_this, [_this.action, {
                                 x: startPos.x,
                                 y: startPos.y,
-                                x_moveTo: newPos.x,
-                                y_moveTo: newPos.y
+                                x_moveTo: nowPos.x,
+                                y_moveTo: nowPos.y
                             }]);
                         });
 
                         break;
+                    case "char":
+
+                        setTimeout(function() {
+                            _this.char_input.attr("autofocus", "autofocus").attr("rows", 1)
+                                .css({
+                                    "display": "block",
+                                    "resize": "both",
+                                    "background": "transparent",
+                                    "font-size": `${_this.action_fontSize}pt`,
+                                    "color": `${_this.action_color}`,
+                                    "border": `solid 1px ${_this.action_color}`,
+                                    "padding": "5px",
+                                    "position": "absolute",
+                                    "width": "100px",
+                                    "left": `${img_left_px+startPos.x}px`,
+                                    "top": `${img_top_px+startPos.y-16}px`
+                                }).unbind("blur").on("blur", function() {
+
+
+                                    debug.debug(`\n1399: ctx.measureText=`);
+                                    debug.debug(_this.ctx.measureText(_this.char_input.val()));
+                                    if ($(this).val() !== "")
+                                        _this.canvas_add.apply(_this, ["text", {
+                                            "text": _this.char_input.val(),
+                                            "x": ~~_this.char_input.css("left").replace("px", "") - img_left_px,
+                                            "y": ~~_this.char_input.css("top").replace("px", "") - img_top_px + 16 + 5 + 2, // 5:padding 2:border
+                                            "width": _this.char_input.width()
+                                        }]);
+                                    _this.char_input.css({
+                                        "display": "none"
+                                    }).val("");
+                                }).trigger("focus");
+                        }, 0);
+
+                        break;
+
+                        // debug.debug(`\n1395: ${_this.char_input.css("display")}`);
+                        // switch (_this.char_input.css("display")) {
+
+                        //     case "block":
+
+                        //     case "none":
+
+                        //     default:
+                        //         break;
+                        // }
+
+                        // break;
                     default:
                         break;
 
@@ -1245,6 +1474,13 @@ function LayerShow_2_5_4() {
         // reShow==true时重新显示弹层。用于IE678的resize
         close: function(reShow) {
             var _this = this;
+
+
+
+            _this.button_resetStyle.apply(_this);
+            _this.canvas_record = [];
+            debug.debug(`\n1467: canvas_record.length=${_this.canvas_record.length}`);
+            _this.canvas_record_now_index = -1;
 
             _this.dom_bg_layer.fadeTo(200, 0, function() {
                 $(this).css({
@@ -1289,6 +1525,9 @@ function LayerShow_2_5_4() {
         // box_size 默认为{width: _this.window_width_px * _this.image_size_percent_from_window_width, height: _this.window_height_px * _this.image_size_percent_from_window_height}
         imageGetSize: function(img, box_size) {
             var _this = this;
+
+            debug.debug(`\n1493: imageGetSize() box_size=${box_size}`);
+            debug.debug(box_size);
 
             _this.window_width_px = $(window).width();
             _this.window_height_px = $(window).height();

@@ -10,11 +10,29 @@
     <meta name="renderer" content="webkit">
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+    ul.panel {
+        height: 100vh;
+    }
+
+    ul.panel li {
+        cursor: pointer;
+        float: left;
+        width: 33.3333vw;
+        height: 100vh;
+        background: url('') no-repeat center center/contain;
+    }
+    </style>
 </head>
 
 <body class="index">
-
+    <ul class="panel" style="height:100vh;">
+        <li style="background-image:url('1.jpg');"></li>
+        <li style="background-image:url('2.jpg');"></li>
+        <li style="background-image:url('3.jpg');"></li>
+    </ul>
 </body>
+<script src="/inc/canvas_hidpi.js"></script>
 <script src="/inc/require.js" data-main="/widget/main.js" id="script_page" page="index"></script>
 
 </html>
