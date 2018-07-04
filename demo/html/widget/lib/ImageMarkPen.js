@@ -1064,6 +1064,11 @@ function LayerShow_2_5_4() {
             _this.dom_button_smaller.on("click", function() {
                 _this.button_smaller_handler.apply(_this);
             });
+
+            // 　拖拽按钮
+            _this.dom_button_drag.on("click", function() {
+                // _this.button_drag_handler.apply(_this);
+            });
         },
 
         // 按钮监听-矩形
@@ -1136,6 +1141,8 @@ function LayerShow_2_5_4() {
                 return;
 
             var size = {
+                "width_attr": _this.dom_image.attr("width"),
+                "height_attr": _this.dom_image.attr("height"),
                 "width": _this.dom_image.width(),
                 "height": _this.dom_image.height(),
                 "marginLeft": _this.dom_image.css("margin-left").replace("px", ""),
@@ -1158,10 +1165,6 @@ function LayerShow_2_5_4() {
             _this.dom_button_drag.removeClass("button_disable").css("cursor", "pointer")
                 .find("path").css("fill", _this.button_color_default);
         },
-
-        // width-width*2=width(1-2)
-        // width+width/2=width(1+1/2)
-        // width-width/1.2=width(1-1/1.2)
 
         // 按钮监听-缩小
         button_smaller_handler: function() {
@@ -1200,6 +1203,16 @@ function LayerShow_2_5_4() {
             }
             _this.dom_button_larger.removeClass("button_disable").css("cursor", "pointer")
                 .find("path").css("fill", _this.button_color_default);
+        },
+
+        // 按钮监听-拖拽
+        button_drag_handler: function() {
+            var _this = this;
+            _this.dom_image.css({
+                "cursor": "move"
+            });
+
+            _this.action = "drag";
         },
 
         // 设置宽高和位置
@@ -1443,16 +1456,25 @@ function LayerShow_2_5_4() {
 
             var startPos = { x: -1, y: -1 };
             var nowPos = { x: -1, y: -1 };
-            var moved;
-            var img_left_px = _this.dom_image_li.width() / 2 + ~~_this.dom_image.css("margin-left").replace("px", ""),
-                img_top_px = _this.dom_image_li.height() / 2 + ~~_this.dom_image.css("margin-top").replace("px", "");
-            debug.debug(`\n1338: img_left_px=${img_left_px};img_top_px=${img_top_px}`);
+            var moved; // 记录是否有鼠标移动，当非第一次移动时，先undo
+            var img_left_px, img_top_px; // 图片的左边距和上边距
+            var zoom_ratio; // 当前的zoom比例，zoom单次系数的zoom_level次方
             _this.dom_image.unbind("mousedown").on("mousedown", function(e) {
-                startPos = {
-                    x: e.offsetX,
-                    y: e.offsetY
-                };
-                debug.debug(`\n1351 _this.dom_image.mousedown(e) e=`);
+                img_left_px = _this.dom_image_li.width() / 2 + ~~_this.dom_image.css("margin-left").replace("px", "");
+                img_top_px = _this.dom_image_li.height() / 2 + ~~_this.dom_image.css("margin-top").replace("px", "");
+                debug.debug(`
+                    \n1468
+                    img_left_px=${img_left_px},
+                    img_top_px=${img_top_px}
+                `);
+                zoom_ratio = Math.pow(_this.zoom_ratio, _this.zoom_level);
+
+                if (_this.action != "char")
+                    startPos = {
+                        x: e.offsetX / zoom_ratio,
+                        y: e.offsetY / zoom_ratio
+                    };
+                debug.debug(`\n1479 _this.dom_image.mousedown(e) e=`);
                 debug.debug(e);
 
                 moved = false;
@@ -1460,10 +1482,16 @@ function LayerShow_2_5_4() {
                 switch (_this.action) {
                     case "rect":
                     case "circle":
+                        // _this.canvas_add.apply(_this, [_this.action, {
+                        //     x: startPos.x,
+                        //     y: startPos.y,
+                        //     width: 100,
+                        //     height: 100
+                        // }]);
                         _this.dom_image.unbind("mouseover").on("mousemove", function(e) {
                             nowPos = {
-                                x: e.offsetX,
-                                y: e.offsetY
+                                x: e.offsetX / zoom_ratio,
+                                y: e.offsetY / zoom_ratio
                             };
                             if (moved === true)
                                 _this.canvas_undo.apply(_this);
@@ -1483,8 +1511,8 @@ function LayerShow_2_5_4() {
                     case "pencil":
                         _this.dom_image.unbind("mouseover").on("mousemove", function(e) {
                             nowPos = {
-                                x: e.offsetX,
-                                y: e.offsetY
+                                x: e.offsetX / zoom_ratio,
+                                y: e.offsetY / zoom_ratio
                             };
 
                             if (moved === true)
@@ -1504,29 +1532,42 @@ function LayerShow_2_5_4() {
                     case "char":
 
                         setTimeout(function() {
+                            startPos = {
+                                x: e.offsetX,
+                                y: e.offsetY
+                            };
+                            debug.debug(`
+                                \n1545:
+                                img_left_px=${img_left_px},
+                                startPos.x=${startPos.x}×${zoom_ratio}=${startPos.x* zoom_ratio},
+                            `);
                             _this.char_input.attr("autofocus", "autofocus").attr("rows", 1)
                                 .css({
                                     "display": "block",
                                     "resize": "both",
                                     "background": "transparent",
-                                    "font-size": `${_this.action_fontSize}pt`,
+                                    "font-size": `${_this.action_fontSize*zoom_ratio}pt`,
                                     "color": `${_this.action_color}`,
                                     "border": `solid 1px ${_this.action_color}`,
                                     "padding": "5px",
                                     "position": "absolute",
                                     "width": "100px",
-                                    "left": `${img_left_px+startPos.x}px`,
-                                    "top": `${img_top_px+startPos.y-16}px`
+                                    "left": `${img_left_px+startPos.x-6}px`,
+                                    "top": `${img_top_px+startPos.y-17}px`
                                 }).unbind("blur").on("blur", function() {
 
+                                    debug.debug(`
+                                        \n1565:
+                                        startPos.x=${startPos.x}
+                                    `);
 
                                     debug.debug(`\n1399: ctx.measureText=`);
                                     debug.debug(_this.ctx.measureText(_this.char_input.val()));
                                     if ($(this).val() !== "")
                                         _this.canvas_add.apply(_this, ["text", {
                                             "text": _this.char_input.val(),
-                                            "x": ~~_this.char_input.css("left").replace("px", "") - img_left_px,
-                                            "y": ~~_this.char_input.css("top").replace("px", "") - img_top_px + 16 + 5 + 2, // 5:padding 2:border
+                                            "x": startPos.x / zoom_ratio,
+                                            "y": (startPos.y) / zoom_ratio + (5 + 2) * zoom_ratio, // 5:padding 2:border
                                             "width": _this.char_input.width()
                                         }]);
                                     _this.char_input.css({
@@ -1537,18 +1578,41 @@ function LayerShow_2_5_4() {
 
                         break;
 
-                        // debug.debug(`\n1395: ${_this.char_input.css("display")}`);
-                        // switch (_this.char_input.css("display")) {
+                    case "drag":
+                        startPos = {
+                            x: e.clientX,
+                            y: e.clientY
+                        };
+                        _this.dom_image.unbind("mousemove").on("mousemove", function(e) {
+                            nowPos = {
+                                x: e.clientX,
+                                y: e.clientY
+                            };
 
-                        //     case "block":
+                            var PosDiff = {
+                                x: nowPos.x - startPos.x,
+                                y: nowPos.y - startPos.y
+                            };
 
-                        //     case "none":
+                            debug.debug(`
+                                \n1582:
+                                PosDiff.x=${PosDiff.x},
+                                PosDiff.y=${PosDiff.y}
+                            `);
 
-                        //     default:
-                        //         break;
-                        // }
-
-                        // break;
+                            _this.dom_image.css({
+                                "transform": `translate(${PosDiff.x}px,${PosDiff.y}px`
+                            });
+                        });
+                        debug.debug(`\n1570: 
+                            li.width=${_this.dom_image_li.width()},
+                            img.width=${_this.dom_image.width()},
+                            image.left=${_this.dom_image.css("margin-left")},
+                            li.height=${_this.dom_image_li.height()},
+                            img.height=${_this.dom_image.height()},
+                            image.top=${_this.dom_image.css("margin-top")}
+                        `);
+                        break;
                     default:
                         break;
 
