@@ -1064,6 +1064,11 @@ function LayerShow_2_5_4() {
             _this.dom_button_smaller.on("click", function() {
                 _this.button_smaller_handler.apply(_this);
             });
+
+            // 　拖拽按钮
+            _this.dom_button_drag.on("click", function() {
+                _this.button_drag_handler.apply(_this);
+            });
         },
 
         // 按钮监听-矩形
@@ -1157,6 +1162,18 @@ function LayerShow_2_5_4() {
                 .find("path").css("fill", _this.button_color_default);
             _this.dom_button_drag.removeClass("button_disable").css("cursor", "pointer")
                 .find("path").css("fill", _this.button_color_default);
+        },
+
+        // 按钮监听-拖拽
+        button_drag_handler: function() {
+            var _this = this;
+
+            var _this = this;
+            _this.dom_image.css({
+                "cursor": "move"
+            });
+
+            _this.action = "drag";
         },
 
         // width-width*2=width(1-2)
@@ -1444,10 +1461,11 @@ function LayerShow_2_5_4() {
             var startPos = { x: -1, y: -1 };
             var nowPos = { x: -1, y: -1 };
             var moved;
-            var img_left_px = _this.dom_image_li.width() / 2 + ~~_this.dom_image.css("margin-left").replace("px", ""),
-                img_top_px = _this.dom_image_li.height() / 2 + ~~_this.dom_image.css("margin-top").replace("px", "");
+            var img_left_px, img_top_px;
             debug.debug(`\n1338: img_left_px=${img_left_px};img_top_px=${img_top_px}`);
             _this.dom_image.unbind("mousedown").on("mousedown", function(e) {
+                img_left_px = _this.dom_image_li.width() / 2 + ~~_this.dom_image.css("margin-left").replace("px", "");
+                img_top_px = _this.dom_image_li.height() / 2 + ~~_this.dom_image.css("margin-top").replace("px", "");
                 startPos = {
                     x: e.offsetX,
                     y: e.offsetY
@@ -1549,6 +1567,45 @@ function LayerShow_2_5_4() {
                         // }
 
                         // break;
+                    case "drag":
+                        startPos = {
+                            x: e.clientX,
+                            y: e.clientY
+                        };
+                        _this.dom_image.unbind("mousemove").on("mousemove", function(e) {
+                            nowPos = {
+                                x: e.clientX,
+                                y: e.clientY
+                            };
+
+                            PosDiff = {
+                                x: nowPos.x - startPos.x,
+                                y: nowPos.y - startPos.y
+                            };
+
+                            var margin = {
+
+                            }
+
+                            debug.debug(`
+                                \n1582:
+                                PosDiff.x=${PosDiff.x},
+                                PosDiff.y=${PosDiff.y}
+                            `);
+
+                            _this.dom_image.css({
+                                "transform": `translate(${PosDiff.x}px,${PosDiff.y}px`
+                            });
+                        });
+                        debug.debug(`\n1570: 
+                            li.width=${_this.dom_image_li.width()},
+                            img.width=${_this.dom_image.width()},
+                            image.left=${_this.dom_image.css("margin-left")},
+                            li.height=${_this.dom_image_li.height()},
+                            img.height=${_this.dom_image.height()},
+                            image.top=${_this.dom_image.css("margin-top")}
+                        `);
+                        break;
                     default:
                         break;
 
