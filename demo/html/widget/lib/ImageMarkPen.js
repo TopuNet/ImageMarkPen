@@ -93,6 +93,9 @@ function LayerShow_2_5_4() {
         action_lineWidth: 3,
         action_fontSizes: action_fontSizes,
         action_fontSize: 14,
+        zoom_level: 0,
+        zoom_level_max: 5,
+        zoom_ratio: 1.2,
 
         // 标记是否正在执行图片切换
         image_sliding: false,
@@ -712,13 +715,15 @@ function LayerShow_2_5_4() {
             _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
             _this.dom_button_undo.attr("class", "button_undo button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
             _this.dom_button_larger.attr("class", "button_larger nohl");
-            _this.dom_button_smaller.attr("class", "button_smaller button_disable nohl").css({ "cursor": "default" });
+            _this.dom_button_smaller.attr("class", "button_smaller button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
             _this.dom_button_drag.attr("class", "button_drag button_disable").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
             _this.dom_button_now_flag.css({ "display": "none" });
 
             _this.action = "";
             _this.action_color = _this.action_colors[0];
             _this.action_lineWidth = _this.action_lineWidth_a;
+
+            _this.zoom_level = 0;
 
             _this.styleArea_resetStyle.apply(_this);
 
@@ -1049,6 +1054,16 @@ function LayerShow_2_5_4() {
             _this.dom_button_cancel.on("click", function() {
                 _this.button_cancel_handler.apply(_this);
             });
+
+            // 放大按钮
+            _this.dom_button_larger.on("click", function() {
+                _this.button_larger_handler.apply(_this);
+            });
+
+            // 缩小按钮
+            _this.dom_button_smaller.on("click", function() {
+                _this.button_smaller_handler.apply(_this);
+            });
         },
 
         // 按钮监听-矩形
@@ -1111,6 +1126,80 @@ function LayerShow_2_5_4() {
             debug.debug(`\n1107 button_cancel_handler() ImageMarkPen=`);
             debug.debug(ImageMarkPen);
             ImageMarkPen.opt.callback_button_cancal && ImageMarkPen.opt.callback_button_cancal();
+        },
+
+        // 按钮监听-放大
+        button_larger_handler: function() {
+            var _this = this;
+
+            if (_this.zoom_level >= _this.zoom_level_max)
+                return;
+
+            var size = {
+                "width": _this.dom_image.width(),
+                "height": _this.dom_image.height(),
+                "marginLeft": _this.dom_image.css("margin-left").replace("px", ""),
+                "marginTop": _this.dom_image.css("margin-top").replace("px", ""),
+            };
+
+            _this.dom_image.css({
+                "width": `${size.width*_this.zoom_ratio}px`,
+                "height": `${size.height*_this.zoom_ratio}px`,
+                "margin-left": `${size.marginLeft-size.width*(_this.zoom_ratio-1)/2}px`,
+                "margin-top": `${size.marginTop-size.height*(_this.zoom_ratio-1)/2}px`
+            });
+
+            if (++_this.zoom_level >= _this.zoom_level_max) {
+                _this.dom_button_larger.addClass("button_disable").css("cursor", "default")
+                    .find("path").css("fill", _this.button_color_disable);
+            }
+            _this.dom_button_smaller.removeClass("button_disable").css("cursor", "pointer")
+                .find("path").css("fill", _this.button_color_default);
+            _this.dom_button_drag.removeClass("button_disable").css("cursor", "pointer")
+                .find("path").css("fill", _this.button_color_default);
+        },
+
+        // width-width*2=width(1-2)
+        // width+width/2=width(1+1/2)
+        // width-width/1.2=width(1-1/1.2)
+
+        // 按钮监听-缩小
+        button_smaller_handler: function() {
+            var _this = this;
+
+            if (_this.zoom_level <= 0)
+                return;
+
+            var size = {
+                "width": _this.dom_image.width(),
+                "height": _this.dom_image.height(),
+                "marginLeft": _this.dom_image.css("margin-left").replace("px", ""),
+                "marginTop": _this.dom_image.css("margin-top").replace("px", ""),
+            };
+
+            debug.debug(`\n1178: margin-top=${size.marginTop}; height=${size.height}; height_diff=${size.height*(1-1/_this.zoom_ratio)/2}; margin-top=${~~size.marginTop+~~size.height*(1-1/_this.zoom_ratio)/2}px`);
+
+            _this.dom_image.css({
+                "width": `${size.width/_this.zoom_ratio}px`,
+                "height": `${size.height/_this.zoom_ratio}px`,
+                "margin-left": `${~~size.marginLeft+~~size.width*(1-1/_this.zoom_ratio)/2}px`,
+                "margin-top": `${~~size.marginTop+~~size.height*(1-1/_this.zoom_ratio)/2}px`
+            });
+
+            if (--_this.zoom_level <= 0) {
+                _this.dom_button_smaller.addClass("button_disable").css("cursor", "default")
+                    .find("path").css("fill", _this.button_color_disable);
+                _this.dom_button_drag.addClass("button_disable").css("cursor", "default")
+                    .find("path").css("fill", _this.button_color_disable);
+
+
+                _this.dom_image.css({
+                    "margin-left": `${_this.dom_image.width()/-2}px`,
+                    "margin-top": `${_this.dom_image.height()/-2}px`,
+                });
+            }
+            _this.dom_button_larger.removeClass("button_disable").css("cursor", "pointer")
+                .find("path").css("fill", _this.button_color_default);
         },
 
         // 设置宽高和位置

@@ -27,6 +27,8 @@ define([
                         $debug.log(base64);
                         $debug.log(DrawRecord);
 
+                        $(this).css("background-image", `url('${base64}')`);
+
                         this.DrawRecord = DrawRecord;
 
                         $ImageMarkPen.close();
