@@ -12,7 +12,7 @@ ImageMarkPen 1.1.1
 1. demo中提供了amd版本和原生引用版本
 1. 后续会考虑扩展移动端兼容
 
-<img src="https://github.com/agulado/ImageMarkPen/demo/ImageMarkPen.png" />
+<img src="https://github.com/agulado/ImageMarkPen/raw/master/demo/ImageMarkUp.png" alt="ImageMarkUp.png">
 
 npm
 ---
