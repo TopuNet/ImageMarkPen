@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 	高京
 	2018-06-29
@@ -5,25 +7,21 @@
 	debug模块
 */
 
-const Debuging = true;
+var Debuging = true;
 
-define(function() {
+define(function () {
     return {
-        log: (message) => {
-            if (Debuging === true)
-                console.log(message);
+        log: function log(message) {
+            if (Debuging === true) console.log(message);
         },
-        warn: (message) => {
-            if (Debuging === true)
-                console.warn(message);
+        warn: function warn(message) {
+            if (Debuging === true) console.warn(message);
         },
-        error: (message) => {
-            if (Debuging === true)
-                console.error(message);
+        error: function error(message) {
+            if (Debuging === true) console.error(message);
         },
-        debug: (message) => {
-            if (Debuging === true)
-                console.debug(message);
+        debug: function debug(message) {
+            if (Debuging === true) console.debug(message);
         }
     };
 });

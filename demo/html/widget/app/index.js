@@ -1,39 +1,46 @@
-define([
-    "modules/debug",
-    "lib/ImageMarkPen"
-], function($debug, $ImageMarkPen) {
-    const $index = {
-        init: () => {
-            $debug.warn(`index 6: init()`);
+"use strict";
+
+define(["modules/debug", "lib/ImageMarkPen", "lib/polyfill"], function($debug, $ImageMarkPen) {
+    var $index = {
+        init: function() {
+            $debug.warn("index 6: init()");
+
+            $("ul.panel li").css("height", "100vh");
 
             $index.ShowMarkLayer();
         },
         // 弹层
-        ShowMarkLayer: () => {
+        ShowMarkLayer: function() {
             $("ul.panel li").on("click", function() {
-                const index = $(this).index();
+                var _this = this;
+
+                var index = $(this).index();
 
                 $ImageMarkPen.show({
-                    Pics: `${index+1}.jpg`,
+                    Pics: index + 1 + ".jpg",
                     DrawRecord: this.DrawRecord,
-                    callback_before: () => $debug.warn('index 18: callback_before()'),
-                    callback_success: () => $debug.warn('index 19: callback_success()'),
-                    callback_button_cancal: () => {
+                    callback_before: function() {
+                        return $debug.warn('index 18: callback_before()');
+                    },
+                    callback_success: function() {
+                        return $debug.warn('index 19: callback_success()');
+                    },
+                    callback_button_cancal: function() {
                         $debug.warn('index 21: callback_button_cancal()');
                         $ImageMarkPen.close();
                     },
-                    callback_button_finish: (base64, DrawRecord) => {
+                    callback_button_finish: function(base64, DrawRecord) {
                         $debug.warn('index 25: callback_button_finish()');
                         $debug.log(base64);
                         $debug.log(DrawRecord);
 
-                        $(this).css("background-image", `url('${base64}')`);
+                        $(_this).css("background-image", "url('" + base64 + "')");
 
-                        this.DrawRecord = DrawRecord;
+                        _this.DrawRecord = DrawRecord;
 
                         $ImageMarkPen.close();
                     },
-                    callback_close: () => {
+                    callback_close: function() {
                         $debug.warn('index 21: callback_close()');
                     }
                 });
