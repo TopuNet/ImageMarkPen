@@ -1,0 +1,22 @@
+{
+  "name": "image-markup",
+  "version": "1.1.1",
+  "description": "基于canvas的图片编辑插件",
+  "main": "Readme.md",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agulado/ImageMarkUp.git"
+  },
+  "keywords": [
+    "topu.net"
+  ],
+  "author": "Topu.net",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agulado/ImageMarkUp/issues"
+  },
+  "homepage": "https://github.com/agulado/ImageMarkUp#readme"
+}
