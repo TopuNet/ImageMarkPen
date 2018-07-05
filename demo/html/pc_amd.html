@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ImageMarkPen - 图片标记</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no, email=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+    ul.panel {
+
+        height: 100vh;
+    }
+
+    ul.panel li {
+        cursor: pointer;
+        float: left;
+        margin-left: .2vw;
+        width: 30vw;
+        height: 0;
+        background: url('') no-repeat center center/contain;
+    }
+    </style>
+</head>
+
+<body class="index">
+    <ul class="panel" style="height:100vh;">
+        <li style="background-image:url('1.jpg');"></li>
+        <li style="background-image:url('2.jpg');"></li>
+        <li style="background-image:url('3.jpg');"></li>
+    </ul>
+</body>
+
+<script src="/inc/require.js" data-main="/widget/main.js" id="script_page" page="index"></script>
+
+</html>
