@@ -1,5 +1,5 @@
 {
-  "name": "image-markup",
+  "name": "image-mark-pen",
   "version": "1.1.1",
   "description": "基于canvas的图片编辑插件",
   "main": "Readme.md",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agulado/ImageMarkUp.git"
+    "url": "git+https://github.com/agulado/ImageMarkPen.git"
   },
   "keywords": [
     "topu.net"
@@ -16,7 +16,7 @@
   "author": "Topu.net",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/agulado/ImageMarkUp/issues"
+    "url": "https://github.com/agulado/ImageMarkPen/issues"
   },
-  "homepage": "https://github.com/agulado/ImageMarkUp#readme"
+  "homepage": "https://github.com/agulado/ImageMarkPen#readme"
 }

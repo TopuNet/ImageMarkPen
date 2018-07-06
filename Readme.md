@@ -70,28 +70,16 @@ jquery-ui的图标。
 
 ```javascript
 	ImageMarkPen.show({
-		Pics: "demo.jpg", // 打开的图片路径
-		DrawRecord: [], // 默认恢复的绘制记录。编辑成功后，会返回编辑的记录，此处传入可用于图片保存前的再次操作 或 图片不保存而是保存绘制记录到数据库
-		callback_before: function() { 
-		    // 弹层显示前的回调
-		},
-		callback_success: function() { 
-		    // 弹层成功显示后的回调（此时图片已加载成功）
-		},
-		callback_button_cancal: function() { 
-		    // 点击编辑按钮-取消时的回调，ImageMarkPen不会自动关掉，需调用close()方法，此时可给一些警告提示。
-		    ImageMarkPen.close();
-		},
-		callback_button_finish: function(base64, DrawRecord) { 
-
-			// 点击编辑按钮-完成时的回调(@base64=编辑后的图片base64; @DrawRecord=绘制记录数组)，同样，需要close()才会关闭弹层
-		    debug.log(base64);
-		    debug.log(DrawRecord);
-		    ImageMarkPen.close();
-		},
-		callback_close: function() { 
-			// 弹层关闭后的回调
-		}
+		Pics: '', // 图片路径。 无默认值
+		DrawRecord: [], // 默认绘制记录，数组。无默认值。编辑成功后，会返回编辑的记录，此处传入可用于图片保存前的再次操作 或 图片不保存而是保存绘制记录到数据库
+		z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
+		bg_color: '#000000', // 背景层16进制颜色。 默认 #000000
+		bg_opacity: 0.8, // 背景层透明度，0～1。默认0.8
+		callback_before: null, // 弹层前执行，如显示loading，无默认
+		callback_success: null, // 弹层后回调，如隐藏loading，无默认
+		callback_button_cancal: null, // 点击关闭按钮后的回调，无默认。如需关闭弹层请调用close()
+		callback_button_finish: null, // 点击完成按钮后的回调，无默认。function(base64,DrawRecord){ @base64: 图片base64; @DrawRecord: canvas绘制记录数组}。如需关闭弹层请调用close()
+		callback_close: null // 关闭弹层后回调，无默认
 	});
 ```
 
