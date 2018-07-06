@@ -1,0 +1,231 @@
+
+
+@body_color:#fff;//背景颜色
+@font_size: 14px; //默认字体大小（包括链接）
+@font_color: #787474; //默认字体颜色（包括链接）
+@font_gray: #585753;//灰色字体
+@font_color_hover: #475168;//鼠标悬停的颜色
+@bg_gray: #f4f4f4;//灰色部分的背景
+@font_family: "微软雅黑", "Arial"; //默认字体（包括链接）
+@content_width: 1200px; //版心宽度
+@color_fff: #fff;
+@color_333: #333;
+@color_999: #999;
+@line_color: #e9e8e8;
+@bg_color_nav: #ff6c60;
+@bg_color_li: #214a71;
+
+html, body, h1, h2, h3, h4, h5, h6, hr, p, ul, li, form, button, input, textarea, th, td, div,dl,dt,dd, figure, figcaption {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: @font_size;
+    font-family: @font_family;
+    color: @font_color;
+    box-sizing: border-box;
+}
+
+
+// 清除浮动
+.clear(){
+    content:'.';
+    display: block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+select {
+    outline: none;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+.gray {
+    background-color: @bg_gray!important;
+    cursor: default!important;
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+    color: @font_color;
+    font-family: @font_family;
+    font-size: @font_size;
+}
+
+a:hover {
+    text-decoration: none;
+    color: @font_color_hover;
+}
+
+img {
+    display: block;
+    border: none;
+    height: auto;
+    width: auto\9;
+    /* ie8 */
+    -ms-interpolation-mode: bicubic; //为了照顾ie图片缩放失真
+}
+
+input:focus {
+    outline: none;
+}
+
+.li_click {
+    cursor: pointer;
+}
+
+.content {
+    width: @content_width;
+    margin: 0 auto;
+}
+
+.min-content {
+    min-width: 1200px;
+}
+
+#editor {
+    font-size: @font_size;
+    line-height: 2;
+}
+
+#editor img {
+    margin: 0 auto;
+}
+
+//Mixins 混入
+// 雪碧图
+.bp (@x: 0; @y: 0; @fp_att) {
+    background: url("/images/sprite@{fp_att}.png") no-repeat;
+    background-position: @x @y;
+}
+
+// inline-block
+.inline-block() {
+    display: inline-block;
+    *zoom: 1;
+    *display: inline;
+}
+
+//圆角
+.border-radius(@radius: 5px) {
+    border-radius: @radius;
+}
+
+// 阴影
+.box-shadow(@style,
+@c) when (iscolor(@c)) {
+    -webkit-box-shadow: @style @c;
+    box-shadow: @style @c;
+}
+
+.box-shadow(@style,
+@alpha: 50%) when (isnumber(@alpha)) {
+    .box-shadow(@style,
+    rgba(0, 0, 0, @alpha));
+}
+
+//clear
+.clear(@direction: both) {
+    clear: @direction;
+}
+
+// filter
+.filter(@style: blur(0px)) {
+    filter: @style;
+    -webkit-filter: @style;
+    -o-filter: @style;
+    -moz-filter: @style;
+    -ms-filter: @style;
+}
+
+// perspective
+.perspective(@distance: 200vw,
+@origin-x: center,
+@origin-y: center) {
+    perspective: @distance;
+    -webkit-perspective: @distance;
+    -moz-perspective: @distance;
+    -o-perspective: @distance;
+    -ms-perspective: @distance;
+    perspective-origin: @origin-x @origin-y;
+    -webkit-perspective-origin: @origin-x @origin-y;
+    -moz-perspective-origin: @origin-x @origin-y;
+    -o-perspective-origin: @origin-x @origin-y;
+    -ms-perspective-origin: @origin-x @origin-y;
+}
+
+// transform-style
+.transform-style(@style: preserve-3d,
+@origin-x: center,
+@origin-y: center) {
+    transform-style: @style;
+    -webkit-transform-style: @style;
+    -moz-transform-style: @style;
+    -o-transform-style: @style;
+    -ms-transform-style: @style;
+    transform-origin: @origin-x @origin-y;
+    -webkit-transform-origin: @origin-x @origin-y;
+    -moz-transform-origin: @origin-x @origin-y;
+    -o-transform-origin: @origin-x @origin-y;
+    -ms-transform-origin: @origin-x @origin-y;
+}
+
+//transition
+.transition(@property: all,
+@duration: 2s,
+@timing-function: linear,
+@delay: 0s) {
+    transition: @property @duration @timing-function @delay;
+    -ms-transition: @property @duration @timing-function @delay;
+    -moz-transition: @property @duration @timing-function @delay;
+    -webkit-transition: @property @duration @timing-function @delay;
+    -o-transition: @property @duration @timing-function @delay;
+}
+
+//transform
+.transform(@t: rotatex(0deg)) {
+    transform: @t;
+    -ms-transform: @t;
+    -moz-transform: @t;
+    -webkit-transform: @t;
+    -o-transform: @t;
+}
+
+//transform
+.transform(@t: rotatez(0deg)) {
+    transform: @t;
+    -ms-transform: @t;
+    -moz-transform: @t;
+    -webkit-transform: @t;
+    -o-transform: @t;
+}
+
+//animation
+.animation(@animation-name: name, @animation-duration: 2s, @animation-delay: 0s, @animation-iteration-count: 1, @animation-timing-function: linear, @animation-fill-mode: forwards, @animation-direction: normal) {
+    animation-name: @animation-name;
+    animation-duration: @animation-duration;
+    animation-iteration-count: @animation-iteration-count;
+    animation-timing-function: @animation-timing-function;
+    animation-fill-mode: @animation-fill-mode;
+    animation-delay: @animation-delay;
+    animation-direction: @animation-direction;
+    -webkit-animation-name: @animation-name;
+    -webkit-animation-duration: @animation-duration;
+    -webkit-animation-iteration-count: @animation-iteration-count;
+    -webkit-animation-timing-function: @animation-timing-function;
+    -webkit-animation-fill-mode: @animation-fill-mode;
+    -webkit-animation-delay: @animation-delay;
+    -webkit-animation-direction: @animation-direction;
+    -moz-animation-name: @animation-name;
+    -moz-animation-duration: @animation-duration;
+    -moz-animation-iteration-count: @animation-iteration-count;
+    -moz-animation-timing-function: @animation-timing-function;
+    -moz-animation-fill-mode: @animation-fill-mode;
+    -moz-animation-delay: @animation-delay;
+    -moz-animation-direction: @animation-direction;
+}

@@ -1,0 +1,82 @@
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+p,
+ul,
+li,
+form,
+button,
+input,
+textarea,
+th,
+td,
+div,
+dl,
+dt,
+dd,
+figure,
+figcaption {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+  font-family: "微软雅黑", "Arial";
+  color: #787474;
+  box-sizing: border-box;
+}
+select {
+  outline: none;
+}
+ul,
+ol {
+  list-style: none;
+}
+.gray {
+  background-color: #f4f4f4 !important;
+  cursor: default!important;
+}
+a {
+  text-decoration: none;
+  outline: none;
+  color: #787474;
+  font-family: "微软雅黑", "Arial";
+  font-size: 14px;
+}
+a:hover {
+  text-decoration: none;
+  color: #475168;
+}
+img {
+  display: block;
+  border: none;
+  height: auto;
+  width: auto\9;
+  /* ie8 */
+  -ms-interpolation-mode: bicubic;
+}
+input:focus {
+  outline: none;
+}
+.li_click {
+  cursor: pointer;
+}
+.content {
+  width: 1200px;
+  margin: 0 auto;
+}
+.min-content {
+  min-width: 1200px;
+}
+#editor {
+  font-size: 14px;
+  line-height: 2;
+}
+#editor img {
+  margin: 0 auto;
+}
