@@ -31,34 +31,34 @@ ImageMarkPen.js是babel过的。
 
 #### dist/assets：
 
-1. inc/canvas_hidpi.js: [hidpi-canvas-polyfill](https://github.com/jondavidjohn/hidpi-canvas-polyfill)
+##### · inc/canvas_hidpi.js: [hidpi-canvas-polyfill](https://github.com/jondavidjohn/hidpi-canvas-polyfill)
 
 ```
 在ImageMarkPen.js(描述具体位置或行号时，均指ImageMarkPen_es2015.js，后同)最底部的amd封装中引用，
 非amd规范请在视图中引用
 ```
 
-1. inc/jquery-ui.min.css: [jquery-ui](https://jqueryui.com)
+##### · inc/jquery-ui.min.css: [jquery-ui](https://jqueryui.com)
 
 ```
 jquery-ui的样式表。
 在ImageMarkPen.js的show()方法(line 33)中引用
 ```
 
-1. inc/jquery-ui-icons_444444_256x240.png:
+##### · inc/jquery-ui-icons_444444_256x240.png:
 
 ```
 jquery-ui的图标。
 在inc/jquery-ui.min.css中搜索444444可以找到
 ```
 
-1. widget/lib/polyfill.min.js: [babel-polyfill](https://www.babeljs.cn/docs/usage/polyfill/)
+##### · widget/lib/polyfill.min.js: [babel-polyfill](https://www.babeljs.cn/docs/usage/polyfill/)
 
 ```
 在ImageMarkPen.js最底部的amd封装中引用，非amd规范请在视图中引用
 ```
 
-1. widget/lib/jquery-ui.min.js: [jquery-ui](https://jqueryui.com)
+##### · widget/lib/jquery-ui.min.js: [jquery-ui](https://jqueryui.com)
 
 ```
 在ImageMarkPen.js最底部的amd封装中引用，非amd规范请在视图中引用
