@@ -69,18 +69,18 @@ jquery-ui的图标。
 #### 调用：
 
 ```javascript
-	ImageMarkPen.show({
-		Pics: '', // 图片路径。 无默认值
-		DrawRecord: [], // 默认绘制记录，数组。无默认值。编辑成功后，会返回编辑的记录，此处传入可用于图片保存前的再次操作 或 图片不保存而是保存绘制记录到数据库
-		z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
-		bg_color: '#000000', // 背景层16进制颜色。 默认 #000000
-		bg_opacity: 0.8, // 背景层透明度，0～1。默认0.8
-		callback_before: null, // 弹层前执行，如显示loading，无默认
-		callback_success: null, // 弹层后回调，如隐藏loading，无默认
-		callback_button_cancal: null, // 点击关闭按钮后的回调，无默认。如需关闭弹层请调用close()
-		callback_button_finish: null, // 点击完成按钮后的回调，无默认。function(base64,DrawRecord){ @base64: 图片base64; @DrawRecord: canvas绘制记录数组}。如需关闭弹层请调用close()
-		callback_close: null // 关闭弹层后回调，无默认
-	});
+ImageMarkPen.show({
+	Pics: '', // 图片路径。 无默认值
+	DrawRecord: [], // 默认绘制记录，数组。无默认值。编辑成功后，会返回编辑的记录，此处传入可用于图片保存前的再次操作 或 图片不保存而是保存绘制记录到数据库
+	z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
+	bg_color: '#000000', // 背景层16进制颜色。 默认 #000000
+	bg_opacity: 0.8, // 背景层透明度，0～1。默认0.8
+	callback_before: null, // 弹层前执行，如显示loading，无默认
+	callback_success: null, // 弹层后回调，如隐藏loading，无默认
+	callback_button_cancal: null, // 点击关闭按钮后的回调，无默认。如需关闭弹层请调用close()
+	callback_button_finish: null, // 点击完成按钮后的回调，无默认。function(base64,DrawRecord){ @base64: 图片base64; @DrawRecord: canvas绘制记录数组}。如需关闭弹层请调用close()
+	callback_close: null // 关闭弹层后回调，无默认
+});
 ```
 
 #### 关闭：
@@ -93,19 +93,19 @@ ImageMarkPen.close();
 ---
 v1.1.1(2018-07-05)
 		
-		* 整理资源文件，上线
+	* 整理资源文件，上线
 
 v0.3.2(2018-07-05)
 
-		* 引入babel
-		* close()中重置style.width和height，解决window.devicePixelRatio==1时，style.width/height没有被重置的bug
-		* 解决button_char改为svg图片后，resetStyle被遗漏的bug
-		* 引入jquery-ui，用resizable方法解决ie全系不支持css.resize的问题（除ie外依旧使用原生css）
-		* 解决text被undo时y坐标自加的bug
+	* 引入babel
+	* close()中重置style.width和height，解决window.devicePixelRatio==1时，style.width/height没有被重置的bug
+	* 解决button_char改为svg图片后，resetStyle被遗漏的bug
+	* 引入jquery-ui，用resizable方法解决ie全系不支持css.resize的问题（除ie外依旧使用原生css）
+	* 解决text被undo时y坐标自加的bug
 
 v0.3.1(2018-07-04)
 
-		* 拖拽好了
+	* 拖拽好了
 
 v0.2.1(2018-07-04)
 
