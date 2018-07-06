@@ -34,8 +34,8 @@ ImageMarkPen.js是babel过的。
 1. inc/canvas_hidpi.js: [hidpi-canvas-polyfill](https://github.com/jondavidjohn/hidpi-canvas-polyfill)
 
 ```
-在ImageMarkPen.js(描述具体位置或行号时，均指ImageMarkPen_es2015.js，后同)最底部的amd封装中引用，非amd规范请在视图中引用
-
+在ImageMarkPen.js(描述具体位置或行号时，均指ImageMarkPen_es2015.js，后同)最底部的amd封装中引用，
+非amd规范请在视图中引用
 ```
 
 1. inc/jquery-ui.min.css: [jquery-ui](https://jqueryui.com)
