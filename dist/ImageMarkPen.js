@@ -1727,8 +1727,10 @@
     };
 
     if (typeof define === "function" && define.amd) {
-        define(["lib/jquery-ui.min", "/inc/canvas_hidpi.js"], function () {
+        define(["lib/jquery-ui.min", "lib/canvas_hidpi"], function () {
             return ImageMarkPen;
         });
+    } else {
+        window.ImageMarkPen = ImageMarkPen;
     }
 })();

@@ -2,8 +2,8 @@
 requirejs.config({
     // baseUrl: '/widget',
     // paths: {
-    //     "test": "app/test"
-    // },
+    //     "inc": "../inc"
+    // }
     //     shim: {
     //         "test": {
     //             exports: "test"
