@@ -17,6 +17,7 @@ define(["modules/debug", "lib/ImageMarkPen", "lib/polyfill"], function($debug, $
                 var index = $(this).index();
 
                 $ImageMarkPen.show({
+                    debug: true,
                     Pics: index + 1 + ".jpg",
                     DrawRecord: this.DrawRecord,
                     callback_before: function() {

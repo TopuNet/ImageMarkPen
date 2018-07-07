@@ -1,4 +1,4 @@
-ImageMarkPen 1.1.1
+ImageMarkPen 1.1.2
 ===
 ### 基于canvas的图片标记插件
 
@@ -70,6 +70,7 @@ jquery-ui的图标。
 
 ```javascript
 ImageMarkPen.show({
+	debug: true, // debug模式。默认false
 	Pics: '', // 图片路径。 无默认值
 	DrawRecord: [], // 默认绘制记录，数组。无默认值。编辑成功后，会返回编辑的记录，此处传入可用于图片保存前的再次操作 或 图片不保存而是保存绘制记录到数据库
 	z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
@@ -91,6 +92,11 @@ ImageMarkPen.close();
 
 更新日志：
 ---
+v1.1.2(2018-07-07)
+
+	* 把所有变量包入匿名函数中
+	* 增加参数debug，默认false
+
 v1.1.1(2018-07-05)
 		
 	* 整理资源文件，上线
