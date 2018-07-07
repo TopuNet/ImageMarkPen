@@ -14,7 +14,7 @@
         // 处理opt
         opt_assign: function opt_assign(opt) {
             var opt_default = {
-                debug: false, // debug模式，默认false
+                debug: false, // debug模式。默认false
                 Pics: '', // 图片路径。 无默认值
                 DrawRecord: [], // 默认绘制记录，数组。无默认值
                 z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
@@ -1727,8 +1727,10 @@
     };
 
     if (typeof define === "function" && define.amd) {
-        define(["lib/jquery-ui.min", "/inc/canvas_hidpi.js"], function () {
+        define(["lib/jquery-ui.min", "lib/canvas_hidpi"], function () {
             return ImageMarkPen;
         });
+    } else {
+        window.ImageMarkPen = ImageMarkPen;
     }
 })();

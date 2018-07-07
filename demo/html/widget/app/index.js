@@ -1,6 +1,6 @@
 "use strict";
 
-define(["modules/debug", "lib/ImageMarkPen", "lib/polyfill"], function($debug, $ImageMarkPen) {
+define(["modules/debug", "lib/ImageMarkPen"], function($debug, $ImageMarkPen) {
     var $index = {
         init: function() {
             $debug.warn("index 6: init()");
