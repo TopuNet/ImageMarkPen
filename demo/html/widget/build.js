@@ -1,5 +1,5 @@
 ({
-    // appDir: "/widget",
+    // appDir: "/demo/html/",
     baseUrl: "./",
     name: "main",
     out: "aio.js",
@@ -7,6 +7,6 @@
     optimize: "none",
     findNestedDependencies: true,
     // paths: {
-    //     // "index": "app/index.js"
+    //     "inc": "../inc"
     // }
 })

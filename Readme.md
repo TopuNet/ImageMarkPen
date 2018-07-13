@@ -1,4 +1,4 @@
-ImageMarkPen 1.1.1
+ImageMarkPen 1.1.3
 ===
 ### 基于canvas的图片标记插件
 
@@ -8,7 +8,7 @@ ImageMarkPen 1.1.1
 1. 引入[hidpi-canvas-polyfill](https://github.com/jondavidjohn/hidpi-canvas-polyfill)，实现canvas自动匹配window.devicePixelRatio
 1. 引入[jquery-ui](https://jqueryui.com)，解决ie+edge不支持resize样式的问题。jquery-ui是根据需要release的版本，同时只有ie+edge用。
 1. 弹层是基于[LayerShow_2.5.4](https://github.com/TopuNet/LayerShow/tree/2.5.4)写的，包括后期的编辑都放在一起了。理论上是可以不依靠LayerShow的。时间关系，暂时先这样了，有时间再剥离
-1. 部分代码用到了es6，dist提供了es6和babel后的版本，同时为了兼容ie，要引用babel的polyfill(assets文件夹中有)
+1. 部分代码用到了es6，dist提供了es6和babel后的版本，同时为了兼容ie，要引用[babel-polyfill](https://www.babeljs.cn/docs/usage/polyfill/)(assets文件夹中有)
 1. demo中提供了amd版本和原生引用版本
 1. 后续会考虑扩展移动端兼容
 
@@ -31,11 +31,17 @@ ImageMarkPen.js是babel过的。
 
 #### dist/assets：
 
-##### · inc/canvas_hidpi.js: [hidpi-canvas-polyfill](https://github.com/jondavidjohn/hidpi-canvas-polyfill)
+##### · widget/lib/canvas_hidpi.js: [hidpi-canvas-polyfill](https://github.com/jondavidjohn/hidpi-canvas-polyfill)
 
 ```
 在ImageMarkPen.js(描述具体位置或行号时，均指ImageMarkPen_es2015.js，后同)最底部的amd封装中引用，
 非amd规范请在视图中引用
+```
+
+##### · widget/lib/jquery-ui.min.js: [jquery-ui](https://jqueryui.com)
+
+```
+在ImageMarkPen.js最底部的amd封装中引用，非amd规范请在视图中引用
 ```
 
 ##### · inc/jquery-ui.min.css: [jquery-ui](https://jqueryui.com)
@@ -52,16 +58,10 @@ jquery-ui的图标。
 在inc/jquery-ui.min.css中搜索444444可以找到
 ```
 
-##### · widget/lib/polyfill.min.js: [babel-polyfill](https://www.babeljs.cn/docs/usage/polyfill/)
+##### · inc/polyfill.min.js: [babel-polyfill](https://www.babeljs.cn/docs/usage/polyfill/)
 
 ```
-在ImageMarkPen.js最底部的amd封装中引用，非amd规范请在视图中引用
-```
-
-##### · widget/lib/jquery-ui.min.js: [jquery-ui](https://jqueryui.com)
-
-```
-在ImageMarkPen.js最底部的amd封装中引用，非amd规范请在视图中引用
+在视图中引用
 ```
 
 使用
@@ -70,6 +70,7 @@ jquery-ui的图标。
 
 ```javascript
 ImageMarkPen.show({
+	debug: true, // debug模式。默认false
 	Pics: '', // 图片路径。 无默认值
 	DrawRecord: [], // 默认绘制记录，数组。无默认值。编辑成功后，会返回编辑的记录，此处传入可用于图片保存前的再次操作 或 图片不保存而是保存绘制记录到数据库
 	z_index: 400, // 弹层的z-index。 图片层为z_index+1。 默认400
@@ -91,6 +92,15 @@ ImageMarkPen.close();
 
 更新日志：
 ---
+v1.1.3(2018-07-07)
+
+	* 重新整理资源文件，之前polyfill使用有问题，不能用requireJS。
+
+v1.1.2(2018-07-07)
+
+	* 把所有变量包入匿名函数中
+	* 增加参数debug，默认false
+
 v1.1.1(2018-07-05)
 		
 	* 整理资源文件，上线
