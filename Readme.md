@@ -1,4 +1,4 @@
-ImageMarkPen 1.1.3
+ImageMarkPen 1.1.4
 ===
 ### 基于canvas的图片标记插件
 
@@ -92,6 +92,10 @@ ImageMarkPen.close();
 
 更新日志：
 ---
+v1.1.4(2018-08-03)
+	
+	* 修改√按钮：不再disable，随时可以点击完成修改。
+
 v1.1.3(2018-07-07)
 
 	* 重新整理资源文件，之前polyfill使用有问题，不能用requireJS。

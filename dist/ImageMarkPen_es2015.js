@@ -1,5 +1,5 @@
 /*
-    1.1.2
+    1.1.4
     高京
     2018-06-29
 */
@@ -694,9 +694,9 @@
                     _this.dom_button_undo.addClass("button_disable")
                         .css("cursor", "default")
                         .find("svg path").css("fill", _this.button_color_disable);
-                    _this.dom_button_radic.addClass("button_disable")
-                        .css("cursor", "default")
-                        .find("svg path").css("fill", _this.button_color_disable);
+                    // _this.dom_button_radic.addClass("button_disable")
+                    //     .css("cursor", "default")
+                    //     .find("svg path").css("fill", _this.button_color_disable);
                 }
 
                 _this.dom_button_redo.attr("class", "button_redo nohl").css("cursor", "pointer").find("path").css("fill", _this.button_color_default);
@@ -744,7 +744,8 @@
                 _this.dom_button_circle.attr("class", "button_circle").css("border-color", _this.button_color_default);
                 _this.dom_button_pencil.attr("class", "button_pencil").find("path").css("fill", _this.button_color_default);
                 _this.dom_button_char.attr("class", "button_char").find("path").css("fill", _this.button_color_default);
-                _this.dom_button_radic.attr("class", "button_radic button_disable nohl").css("cursor", "default").find("path").css("fill", _this.button_color_disable);
+                // _this.dom_button_radic.attr("class", "button_radic button_disable nohl").css("cursor", "default").find("path").css("fill", _this.button_color_disable);
+                _this.dom_button_radic.attr("class", "button_radic nohl").css("cursor", "pointer").find("path").css("fill", _this.button_color_default);
                 _this.dom_button_cancel.attr("class", "button_cancel nohl");
                 _this.dom_button_redo.attr("class", "button_redo button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
                 _this.dom_button_undo.attr("class", "button_undo button_disable nohl").css({ "cursor": "default" }).find("path").css("fill", _this.button_color_disable);
