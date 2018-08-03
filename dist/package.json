@@ -1,6 +1,6 @@
 {
   "name": "image-mark-pen",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "基于canvas的图片编辑插件",
   "main": "Readme.md",
   "scripts": {
